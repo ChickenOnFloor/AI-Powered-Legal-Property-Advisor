@@ -129,7 +129,6 @@ export default function AIChatPage() {
                         <li>Property ownership and title issues</li>
                         <li>Land grabbing and forced occupation</li>
                       </ul>
-                      <div className="text-xs mt-2 text-gray-500">{getCurrentTime()}</div>
                     </div>
                   </div>
                 </motion.div>
