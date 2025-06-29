@@ -19,52 +19,52 @@ export default function SessionsPage() {
     {
       id: 1,
       lawyer: {
-        name: "Sarah Johnson",
-        specialization: "Property Disputes",
+        name: "Ayesha Khan",
+        specialization: "Land Disputes",
         image: "/placeholder.svg?height=40&width=40",
         rating: 4.9,
       },
       type: "video",
-      date: "2024-01-15",
+      date: "2024-07-01",
       time: "14:00",
       duration: "45 minutes",
-      price: 89,
+      price: 3500,
       status: "completed",
-      case: "Property Boundary Dispute",
+      case: "Boundary Dispute",
       summary: "Discussed boundary line issues and next legal steps.",
     },
     {
       id: 2,
       lawyer: {
-        name: "Michael Chen",
-        specialization: "Real Estate Transactions",
+        name: "Bilal Ahmed",
+        specialization: "Registry & Sale",
         image: "/placeholder.svg?height=40&width=40",
         rating: 4.8,
       },
       type: "chat",
-      date: "2024-01-12",
+      date: "2024-06-28",
       time: "10:30",
       duration: "30 minutes",
-      price: 49,
+      price: 2000,
       status: "completed",
       case: "Contract Review",
-      summary: "Reviewed purchase agreement and identified key concerns.",
+      summary: "Reviewed property sale agreement and key clauses.",
     },
     {
       id: 3,
       lawyer: {
-        name: "Emily Davis",
-        specialization: "Landlord-Tenant Law",
+        name: "Fatima Raza",
+        specialization: "Tenancy Laws",
         image: "/placeholder.svg?height=40&width=40",
         rating: 4.7,
       },
       type: "video",
-      date: "2024-01-18",
+      date: "2024-07-03",
       time: "15:30",
       duration: "45 minutes",
-      price: 89,
+      price: 4000,
       status: "upcoming",
-      case: "Tenant Rights Consultation",
+      case: "Tenant Rights",
       summary: null,
     },
   ]
@@ -127,10 +127,7 @@ export default function SessionsPage() {
                           <Avatar className="h-12 w-12">
                             <AvatarImage src={session.lawyer.image || "/placeholder.svg"} />
                             <AvatarFallback>
-                              {session.lawyer.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
+                              {session.lawyer.name.split(" ").map((n) => n[0]).join("")}
                             </AvatarFallback>
                           </Avatar>
                           <div>
@@ -154,10 +151,10 @@ export default function SessionsPage() {
                             <Badge variant="outline">{session.type === "video" ? "Video Call" : "Chat Session"}</Badge>
                           </div>
                           <p className="text-sm font-medium">
-                            {new Date(session.date).toLocaleDateString()} at {session.time}
+                            {new Date(session.date).toLocaleDateString("en-PK")} at {session.time}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {session.duration} • ${session.price}
+                            {session.duration} • PKR {session.price}
                           </p>
                         </div>
                       </div>
@@ -198,10 +195,7 @@ export default function SessionsPage() {
                           <Avatar className="h-12 w-12">
                             <AvatarImage src={session.lawyer.image || "/placeholder.svg"} />
                             <AvatarFallback>
-                              {session.lawyer.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
+                              {session.lawyer.name.split(" ").map((n) => n[0]).join("")}
                             </AvatarFallback>
                           </Avatar>
                           <div>
@@ -225,10 +219,10 @@ export default function SessionsPage() {
                             <Badge variant="secondary">Completed</Badge>
                           </div>
                           <p className="text-sm font-medium">
-                            {new Date(session.date).toLocaleDateString()} at {session.time}
+                            {new Date(session.date).toLocaleDateString("en-PK")} at {session.time}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {session.duration} • ${session.price}
+                            {session.duration} • PKR {session.price}
                           </p>
                         </div>
                       </div>
