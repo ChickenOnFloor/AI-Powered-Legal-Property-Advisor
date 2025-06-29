@@ -8,7 +8,7 @@ export async function GET() {
     const cases = await Case.find({}).sort({ createdAt: -1 }).limit(5)
     return NextResponse.json({ success: true, cases })
   } catch (error) {
-    console.error("Error fetching cases:", error)  // 👈 LOG the exact error
+    console.error("Error fetching cases:", error)
     return NextResponse.json({ success: false, error: "Failed to fetch cases" }, { status: 500 })
   }
 }

@@ -1,46 +1,65 @@
-import { streamText } from "ai"
-import { groq } from "@ai-sdk/groq"
-
-export const maxDuration = 30
+import { NextResponse } from "next/server"
 
 export async function POST(req) {
-  const { messages } = await req.json()
+  try {
+    const body = await req.json()
+    const messages = body.messages || []
 
-  const result = streamText({
-    model: groq("llama-3.1-70b-versatile"),
-    messages,
-    system: `You are a professional AI legal assistant specializing exclusively in property law and real estate legal matters. You provide helpful, accurate, and detailed property legal information.
+    const systemMessage = {
+      role: "user",
+      content: `
+You are a helpful and expert AI legal assistant specializing only in property-related issues in Pakistan.
 
-Your role is to:
-1. Analyze property-related legal situations in detail
-2. Explain potential legal consequences, punishments, and penalties for property law violations
-3. Suggest practical solutions and step-by-step actions for property disputes
-4. Recommend when to consult with a property lawyer
-5. Provide relevant property law precedents and statutes when applicable
+Only answer questions related to:
+- property ownership disputes,
+- tenant/landlord laws,
+- forced occupancy,
+- legal possession,
+- property documents,
+- legal costs,
+- and punishments under relevant Pakistani laws (mention section numbers from Pakistan Penal Code or other relevant laws).
 
-For each property legal issue, provide:
-- **Property Legal Analysis**: Clear breakdown of the property law issue
-- **Potential Consequences**: Specific fines, penalties, or legal consequences for property violations
-- **Recommended Solutions**: Step-by-step actions to resolve property disputes
-- **Next Steps**: When and how to seek professional property legal help
+You must include possible punishments, legal outcomes, and applicable sections when appropriate.
+You can reply to greetings
+Do NOT answer unrelated questions (e.g., about other countries or non-property issues). Instead, reply: "I only assist with property-related legal issues in Pakistan."
+      `,
+    }
 
-Focus specifically on:
-- Property disputes and boundary issues
-- Real estate transactions and contracts
-- Landlord-tenant law and rental disputes
-- Property ownership and title issues
-- Zoning and land use violations
-- Property development and construction law
-- Commercial and residential property matters
+    const userMessagesOnly = messages.filter((m) => m.role === "user")
 
-Always include:
-- Specific dollar amounts for potential fines/penalties when applicable
-- Timeframes for property legal processes
-- Jurisdiction considerations for property law
-- Risk levels (low, medium, high) for property disputes
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY || "AIzaSyA3LUv6YTwllNCeVwhqG87gnMlmUH3ec9g"}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [systemMessage, ...userMessagesOnly].map((msg) => ({
+            role: msg.role === "user" ? "user" : "model",
+            parts: [{ text: msg.content }],
+          })),
+        }),
+      }
+    )
 
-Be thorough, professional, and helpful while always including appropriate disclaimers about seeking professional property legal advice for specific situations.`,
-  })
+    const data = await geminiRes.json()
 
-  return result.toDataStreamResponse()
+    const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't find an answer."
+    //console.log("✅ Final reply sent to client:", aiReply)
+
+    return NextResponse.json({
+      id: Date.now().toString(),
+      role: "assistant",
+      content: aiReply,
+    })
+  } catch (error) {
+    console.error("❌ Error in /api/chat:", error)
+    return NextResponse.json(
+      {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: "There was an error processing your request. Please try again later.",
+      },
+      { status: 500 }
+    )
+  }
 }
