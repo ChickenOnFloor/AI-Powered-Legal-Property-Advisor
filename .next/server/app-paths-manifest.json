@@ -1,6 +1,9 @@
 {
   "/api/lawyers/route": "app/api/lawyers/route.js",
+  "/api/cases/route": "app/api/cases/route.js",
   "/auth/login/page": "app/auth/login/page.js",
-  "/client/booking/[lawyerId]/page": "app/client/booking/[lawyerId]/page.js",
-  "/client/lawyers/page": "app/client/lawyers/page.js"
+  "/client/ai-chat/page": "app/client/ai-chat/page.js",
+  "/client/dashboard/page": "app/client/dashboard/page.js",
+  "/client/lawyers/page": "app/client/lawyers/page.js",
+  "/client/sessions/page": "app/client/sessions/page.js"
 }

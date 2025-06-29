@@ -30,47 +30,47 @@ export default function AdminDashboard() {
   ]
 
   const recentActivity = [
-    {
-      id: 1,
-      type: "payment",
-      user: "John Smith",
-      action: "Booked Video Property Consultation - $89",
-      time: "2 minutes ago",
-      status: "success",
-    },
-    {
-      id: 2,
-      type: "case_created",
-      user: "Sarah Johnson",
-      action: "Started property boundary dispute case",
-      time: "15 minutes ago",
-      status: "info",
-    },
-    {
-      id: 3,
-      type: "payment",
-      user: "Mike Wilson",
-      action: "Chat session with property lawyer - $49",
-      time: "1 hour ago",
-      status: "success",
-    },
-    {
-      id: 4,
-      type: "lawyer_verification",
-      user: "Emily Davis",
-      action: "Property lawyer verification completed",
-      time: "2 hours ago",
-      status: "success",
-    },
-    {
-      id: 5,
-      type: "ai_consultation",
-      user: "Robert Chen",
-      action: "Used free AI property consultation",
-      time: "3 hours ago",
-      status: "info",
-    },
-  ]
+  {
+    id: 1,
+    type: "payment",
+    user: "Ali Raza",
+    action: "Booked Video Property Consultation – PKR 12,000",
+    time: "2 minutes ago",
+    status: "success",
+  },
+  {
+    id: 2,
+    type: "case_created",
+    user: "Ayesha Khan",
+    action: "Started land ownership dispute case",
+    time: "15 minutes ago",
+    status: "info",
+  },
+  {
+    id: 3,
+    type: "payment",
+    user: "Zainab Malik",
+    action: "Chat session with property lawyer – PKR 6,500",
+    time: "1 hour ago",
+    status: "success",
+  },
+  {
+    id: 4,
+    type: "lawyer_verification",
+    user: "Usman Ahmed",
+    action: "Property lawyer verification completed",
+    time: "2 hours ago",
+    status: "success",
+  },
+  {
+    id: 5,
+    type: "ai_consultation",
+    user: "Hamza Sheikh",
+    action: "Used free AI property consultation",
+    time: "3 hours ago",
+    status: "info",
+  },
+]
 
   const pendingApprovals = [
     {
@@ -84,38 +84,39 @@ export default function AdminDashboard() {
     { id: 3, type: "Case Review", name: "Property Dispute #1234", client: "John Doe", submitted: "1 day ago" },
   ]
 
-  const topLawyers = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      rating: 4.9,
-      cases: 150,
-      revenue: "$52,500",
-      sessions: 45,
-      specialization: "Property Disputes",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      rating: 4.8,
-      cases: 120,
-      revenue: "$39,000",
-      sessions: 38,
-      specialization: "Real Estate Transactions",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 3,
-      name: "Emily Davis",
-      rating: 4.7,
-      cases: 95,
-      revenue: "$26,125",
-      sessions: 29,
-      specialization: "Landlord-Tenant Law",
-      avatar: "/placeholder.svg?height=40&width=40",
-    },
-  ]
+  const topLawyers =[
+  {
+    id: 1,
+    name: "Ayesha Khan",
+    rating: 4.9,
+    cases: 150,
+    revenue: "PKR 14,700,000",
+    sessions: 45,
+    specialization: "Property Disputes & Inheritance",
+    avatar: "/placeholder.svg?height=40&width=40",
+  },
+  {
+    id: 2,
+    name: "Usman Ahmed",
+    rating: 4.8,
+    cases: 120,
+    revenue: "PKR 10,500,000",
+    sessions: 38,
+    specialization: "Real Estate Transactions",
+    avatar: "/placeholder.svg?height=40&width=40",
+  },
+  {
+    id: 3,
+    name: "Fatima Siddiqui",
+    rating: 4.7,
+    cases: 95,
+    revenue: "PKR 7,200,000",
+    sessions: 29,
+    specialization: "Tenant-Landlord Law",
+    avatar: "/placeholder.svg?height=40&width=40",
+  }
+]
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">

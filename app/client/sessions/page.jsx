@@ -16,58 +16,58 @@ const fadeInUp = {
 
 export default function SessionsPage() {
   const sessions = [
-    {
-      id: 1,
-      lawyer: {
-        name: "Sarah Johnson",
-        specialization: "Property Disputes",
-        image: "/placeholder.svg?height=40&width=40",
-        rating: 4.9,
-      },
-      type: "video",
-      date: "2024-01-15",
-      time: "14:00",
-      duration: "45 minutes",
-      price: 89,
-      status: "completed",
-      case: "Property Boundary Dispute",
-      summary: "Discussed boundary line issues and next legal steps.",
+  {
+    id: 1,
+    lawyer: {
+      name: "Ayesha Khan",
+      specialization: "Property Disputes & Inheritance",
+      image: "/placeholder.svg?height=40&width=40",
+      rating: 4.9,
     },
-    {
-      id: 2,
-      lawyer: {
-        name: "Michael Chen",
-        specialization: "Real Estate Transactions",
-        image: "/placeholder.svg?height=40&width=40",
-        rating: 4.8,
-      },
-      type: "chat",
-      date: "2024-01-12",
-      time: "10:30",
-      duration: "30 minutes",
-      price: 49,
-      status: "completed",
-      case: "Contract Review",
-      summary: "Reviewed purchase agreement and identified key concerns.",
+    type: "video",
+    date: "2024-01-15",
+    time: "14:00",
+    duration: "45 minutes",
+    price: "PKR 12,000",
+    status: "completed",
+    case: "Land Boundary Dispute",
+    summary: "Discussed property demarcation and next legal steps under Punjab Land Revenue Act.",
+  },
+  {
+    id: 2,
+    lawyer: {
+      name: "Usman Ahmed",
+      specialization: "Real Estate Transactions",
+      image: "/placeholder.svg?height=40&width=40",
+      rating: 4.8,
     },
-    {
-      id: 3,
-      lawyer: {
-        name: "Emily Davis",
-        specialization: "Landlord-Tenant Law",
-        image: "/placeholder.svg?height=40&width=40",
-        rating: 4.7,
-      },
-      type: "video",
-      date: "2024-01-18",
-      time: "15:30",
-      duration: "45 minutes",
-      price: 89,
-      status: "upcoming",
-      case: "Tenant Rights Consultation",
-      summary: null,
+    type: "chat",
+    date: "2024-01-12",
+    time: "10:30",
+    duration: "30 minutes",
+    price: "PKR 6,500",
+    status: "completed",
+    case: "Property Sale Agreement Review",
+    summary: "Reviewed the sale deed for urban residential property and identified legal gaps.",
+  },
+  {
+    id: 3,
+    lawyer: {
+      name: "Fatima Siddiqui",
+      specialization: "Tenant-Landlord Law",
+      image: "/placeholder.svg?height=40&width=40",
+      rating: 4.7,
     },
-  ]
+    type: "video",
+    date: "2024-01-18",
+    time: "15:30",
+    duration: "45 minutes",
+    price: "PKR 12,000",
+    status: "upcoming",
+    case: "Tenant Eviction Advice",
+    summary: null,
+  }
+]
 
   const upcomingSessions = sessions.filter((s) => s.status === "upcoming")
   const completedSessions = sessions.filter((s) => s.status === "completed")

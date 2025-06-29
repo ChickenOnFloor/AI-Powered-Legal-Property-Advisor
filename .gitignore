@@ -1,3 +1,28 @@
-node_modules
-.next
-.gitignore
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# OS/System files
+.DS_Store
+Thumbs.db
+
+# VSCode/IDE settings
+.vscode/
+.idea/
+*.swp
+
+# Optional: Ignore test coverage output
+coverage/
