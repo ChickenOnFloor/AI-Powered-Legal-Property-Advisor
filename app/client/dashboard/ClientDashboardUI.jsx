@@ -6,12 +6,23 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MessageCircle, Video, Bot, Star, Search, Plus, Lock, CreditCard } from "lucide-react"
+import { Bot, Star, Search, Plus, Lock, CreditCard, Clock } from "lucide-react"
 import Link from "next/link"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function ClientDashboardUI({ user }) {
   const [lawyers, setLawyers] = useState([])
   const [recentCases, setRecentCases] = useState([])
+  const [newCase, setNewCase] = useState({ title: "", description: "" })
 
   useEffect(() => {
     const fetchLawyers = async () => {
@@ -37,6 +48,24 @@ export default function ClientDashboardUI({ user }) {
     fetchLawyers()
     fetchRecentCases()
   }, [])
+
+  const handleCreateCase = async () => {
+    try {
+      const res = await fetch("/api/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCase),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setRecentCases((prev) => [data.case, ...prev])
+        setNewCase({ title: "", description: "" })
+        document.getElementById("close-dialog")?.click()
+      }
+    } catch (err) {
+      console.error("Failed to create case:", err)
+    }
+  }
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
@@ -85,9 +114,7 @@ export default function ClientDashboardUI({ user }) {
           }, {
             icon: Search, title: "Find Property Lawyers", description: "Browse and book property law specialists", href: "/client/lawyers", color: "bg-blue-500", badge: "PAY PER SESSION", badgeColor: "bg-blue-100 text-blue-800",
           }, {
-            icon: MessageCircle, title: "Recent Chats", description: "View your chat sessions", href: "/client/sessions", color: "bg-orange-500", badge: "PAID SESSIONS", badgeColor: "bg-orange-100 text-orange-800",
-          }, {
-            icon: Video, title: "Recent Calls", description: "View your video consultations", href: "/client/sessions", color: "bg-purple-500", badge: "PAID SESSIONS", badgeColor: "bg-purple-100 text-purple-800",
+            icon: Clock, title: "Recent Activities", description: "View all your recent interactions", href: "/client/sessions", color: "bg-orange-500", badge: "SESSION HISTORY", badgeColor: "bg-orange-100 text-orange-800",
           }].map((action, index) => (
             <motion.div key={index} variants={fadeInUp}>
               <Link href={action.href}>
@@ -121,12 +148,35 @@ export default function ClientDashboardUI({ user }) {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   Recent Cases
-                  <Button size="sm" asChild>
-                    <Link href="/client/new-case">
-                      <Plus className="h-4 w-4 mr-2" />
-                      New Case
-                    </Link>
-                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        New Case
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Create New Case</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="Case Title"
+                          value={newCase.title}
+                          onChange={(e) => setNewCase({ ...newCase, title: e.target.value })}
+                        />
+                        <Textarea
+                          placeholder="Case Description"
+                          value={newCase.description}
+                          onChange={(e) => setNewCase({ ...newCase, description: e.target.value })}
+                        />
+                        <DialogClose asChild>
+                          <button id="close-dialog" className="hidden"></button>
+                        </DialogClose>
+                        <Button onClick={handleCreateCase}>Submit</Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -181,7 +231,10 @@ export default function ClientDashboardUI({ user }) {
                           <div>
                             <h4 className="font-medium">{lawyer.firstName} {lawyer.lastName}</h4>
                             <p className="text-sm text-gray-600">{lawyer.specialization}</p>
-                            <div className="text-xs text-gray-500">Registered Lawyer</div>
+                            <div className="flex items-center space-x-1 text-xs text-gray-500">
+                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                              <span>{lawyer.rating || "N/A"}</span>
+                            </div>
                           </div>
                         </div>
                         <Link href={`/client/booking/${lawyer._id}`}>

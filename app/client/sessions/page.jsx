@@ -127,10 +127,7 @@ export default function SessionsPage() {
                           <Avatar className="h-12 w-12">
                             <AvatarImage src={session.lawyer.image || "/placeholder.svg"} />
                             <AvatarFallback>
-                              {session.lawyer.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
+                              {session.lawyer.name.split(" ").map((n) => n[0]).join("")}
                             </AvatarFallback>
                           </Avatar>
                           <div>
@@ -154,10 +151,10 @@ export default function SessionsPage() {
                             <Badge variant="outline">{session.type === "video" ? "Video Call" : "Chat Session"}</Badge>
                           </div>
                           <p className="text-sm font-medium">
-                            {new Date(session.date).toLocaleDateString()} at {session.time}
+                            {new Date(session.date).toLocaleDateString("en-PK")} at {session.time}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {session.duration} • ${session.price}
+                            {session.duration} • PKR {session.price}
                           </p>
                         </div>
                       </div>
@@ -198,10 +195,7 @@ export default function SessionsPage() {
                           <Avatar className="h-12 w-12">
                             <AvatarImage src={session.lawyer.image || "/placeholder.svg"} />
                             <AvatarFallback>
-                              {session.lawyer.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
+                              {session.lawyer.name.split(" ").map((n) => n[0]).join("")}
                             </AvatarFallback>
                           </Avatar>
                           <div>
@@ -225,10 +219,10 @@ export default function SessionsPage() {
                             <Badge variant="secondary">Completed</Badge>
                           </div>
                           <p className="text-sm font-medium">
-                            {new Date(session.date).toLocaleDateString()} at {session.time}
+                            {new Date(session.date).toLocaleDateString("en-PK")} at {session.time}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {session.duration} • ${session.price}
+                            {session.duration} • PKR {session.price}
                           </p>
                         </div>
                       </div>
