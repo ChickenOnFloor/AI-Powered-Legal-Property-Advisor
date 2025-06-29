@@ -1,6 +1,0 @@
-{
-  "/api/lawyers/route": "app/api/lawyers/route.js",
-  "/auth/login/page": "app/auth/login/page.js",
-  "/client/booking/[lawyerId]/page": "app/client/booking/[lawyerId]/page.js",
-  "/client/lawyers/page": "app/client/lawyers/page.js"
-}
