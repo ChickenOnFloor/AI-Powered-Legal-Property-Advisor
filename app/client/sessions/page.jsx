@@ -16,58 +16,58 @@ const fadeInUp = {
 
 export default function SessionsPage() {
   const sessions = [
-    {
-      id: 1,
-      lawyer: {
-        name: "Ayesha Khan",
-        specialization: "Land Disputes",
-        image: "/placeholder.svg?height=40&width=40",
-        rating: 4.9,
-      },
-      type: "video",
-      date: "2024-07-01",
-      time: "14:00",
-      duration: "45 minutes",
-      price: 3500,
-      status: "completed",
-      case: "Boundary Dispute",
-      summary: "Discussed boundary line issues and next legal steps.",
+  {
+    id: 1,
+    lawyer: {
+      name: "Ayesha Khan",
+      specialization: "Property Disputes & Inheritance",
+      image: "/placeholder.svg?height=40&width=40",
+      rating: 4.9,
     },
-    {
-      id: 2,
-      lawyer: {
-        name: "Bilal Ahmed",
-        specialization: "Registry & Sale",
-        image: "/placeholder.svg?height=40&width=40",
-        rating: 4.8,
-      },
-      type: "chat",
-      date: "2024-06-28",
-      time: "10:30",
-      duration: "30 minutes",
-      price: 2000,
-      status: "completed",
-      case: "Contract Review",
-      summary: "Reviewed property sale agreement and key clauses.",
+    type: "video",
+    date: "2024-01-15",
+    time: "14:00",
+    duration: "45 minutes",
+    price: "PKR 12,000",
+    status: "completed",
+    case: "Land Boundary Dispute",
+    summary: "Discussed property demarcation and next legal steps under Punjab Land Revenue Act.",
+  },
+  {
+    id: 2,
+    lawyer: {
+      name: "Usman Ahmed",
+      specialization: "Real Estate Transactions",
+      image: "/placeholder.svg?height=40&width=40",
+      rating: 4.8,
     },
-    {
-      id: 3,
-      lawyer: {
-        name: "Fatima Raza",
-        specialization: "Tenancy Laws",
-        image: "/placeholder.svg?height=40&width=40",
-        rating: 4.7,
-      },
-      type: "video",
-      date: "2024-07-03",
-      time: "15:30",
-      duration: "45 minutes",
-      price: 4000,
-      status: "upcoming",
-      case: "Tenant Rights",
-      summary: null,
+    type: "chat",
+    date: "2024-01-12",
+    time: "10:30",
+    duration: "30 minutes",
+    price: "PKR 6,500",
+    status: "completed",
+    case: "Property Sale Agreement Review",
+    summary: "Reviewed the sale deed for urban residential property and identified legal gaps.",
+  },
+  {
+    id: 3,
+    lawyer: {
+      name: "Fatima Siddiqui",
+      specialization: "Tenant-Landlord Law",
+      image: "/placeholder.svg?height=40&width=40",
+      rating: 4.7,
     },
-  ]
+    type: "video",
+    date: "2024-01-18",
+    time: "15:30",
+    duration: "45 minutes",
+    price: "PKR 12,000",
+    status: "upcoming",
+    case: "Tenant Eviction Advice",
+    summary: null,
+  }
+]
 
   const upcomingSessions = sessions.filter((s) => s.status === "upcoming")
   const completedSessions = sessions.filter((s) => s.status === "completed")

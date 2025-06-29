@@ -96,7 +96,7 @@ export default function HomePage() {
             {
               icon: Bot,
               title: "Free AI Property Assistant",
-              description: "Get instant property legal guidance powered by Groq AI - completely free",
+              description: "Get instant property legal guidance AI - completely free",
               badge: "FREE",
               badgeColor: "bg-green-500",
             },
@@ -264,31 +264,31 @@ export default function HomePage() {
           viewport={{ once: true }}
         >
           {[
-            {
-              name: "Sarah Johnson",
-              specialization: "Property Disputes",
-              experience: "12 years",
-              rating: 4.9,
-              rate: "$89",
-              image: "/placeholder.svg?height=80&width=80",
-            },
-            {
-              name: "Michael Chen",
-              specialization: "Real Estate Transactions",
-              experience: "10 years",
-              rating: 4.8,
-              rate: "$95",
-              image: "/placeholder.svg?height=80&width=80",
-            },
-            {
-              name: "Emily Davis",
-              specialization: "Landlord-Tenant Law",
-              experience: "8 years",
-              rating: 4.7,
-              rate: "$75",
-              image: "/placeholder.svg?height=80&width=80",
-            },
-          ].map((lawyer, index) => (
+  {
+    name: "Ayesha Khan",
+    specialization: "Property Disputes & Inheritance",
+    experience: "15 years",
+    rating: 4.9,
+    rate: "PKR 12,000",
+    image: "/placeholder.svg?height=80&width=80",
+  },
+  {
+    name: "Usman Ahmed",
+    specialization: "Real Estate Transactions",
+    experience: "11 years",
+    rating: 4.8,
+    rate: "PKR 14,000",
+    image: "/placeholder.svg?height=80&width=80",
+  },
+  {
+    name: "Fatima Siddiqui",
+    specialization: "Tenant-Landlord Disputes",
+    experience: "9 years",
+    rating: 4.7,
+    rate: "PKR 10,500",
+    image: "/placeholder.svg?height=80&width=80",
+  }
+].map((lawyer, index) => (
             <motion.div key={index} variants={fadeInUp}>
               <Card className="text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gray-100 opacity-50"></div>
