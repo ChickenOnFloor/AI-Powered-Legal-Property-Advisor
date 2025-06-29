@@ -1,30 +1,25 @@
 {
   "pages": {
+    "/api/login/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/login/route.js"
+    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/page": [
+    "/client/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/client/dashboard/page.js"
     ],
     "/auth/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/auth/login/page.js"
-    ],
-    "/api/login/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/login/route.js"
-    ],
-    "/client/dashboard/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/client/dashboard/page.js"
     ],
     "/api/lawyers/route": [
       "static/chunks/webpack.js",
@@ -35,6 +30,16 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/cases/route.js"
+    ],
+    "/client/lawyers/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/client/lawyers/loading.js"
+    ],
+    "/client/lawyers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/client/lawyers/page.js"
     ],
     "/client/booking/[lawyerId]/loading": [
       "static/chunks/webpack.js",
@@ -51,25 +56,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/lawyers/[lawyerId]/route.js"
     ],
-    "/api/booking/check/route": [
+    "/client/sessions/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/booking/check/route.js"
-    ],
-    "/api/booking/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/booking/route.js"
-    ],
-    "/client/lawyers/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/client/lawyers/loading.js"
-    ],
-    "/client/lawyers/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/client/lawyers/page.js"
+      "static/chunks/app/client/sessions/page.js"
     ]
   }
 }

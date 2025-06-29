@@ -1,4 +1,4 @@
-// File: C:\Users\muham\Desktop\AI-Powered-Legal-Property-Advisor-main\app\client\dashboard\page.jsx
+// File: C:\Users\muham\Desktop\legal\app\client\dashboard\page.jsx
 import * as entry from '../../../../../app/client/dashboard/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

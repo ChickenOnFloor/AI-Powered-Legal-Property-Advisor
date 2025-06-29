@@ -1,4 +1,4 @@
-// File: C:\Users\muham\Desktop\AI-Powered-Legal-Property-Advisor-main\app\api\lawyers\[lawyerId]\route.js
+// File: C:\Users\muham\Desktop\legal\app\api\lawyers\[lawyerId]\route.js
 import * as entry from '../../../../../../app/api/lawyers/[lawyerId]/route.js'
 import type { NextRequest } from 'next/server.js'
 
