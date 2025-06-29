@@ -96,7 +96,7 @@ export default function HomePage() {
             {
               icon: Bot,
               title: "Free AI Property Assistant",
-              description: "Get instant property legal guidance powered by Groq AI - completely free",
+              description: "Get instant property legal guidance AI - completely free",
               badge: "FREE",
               badgeColor: "bg-green-500",
             },

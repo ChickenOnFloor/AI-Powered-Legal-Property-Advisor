@@ -90,10 +90,7 @@ export default function AIChatPage() {
           <div className="flex items-center space-x-2">
             <Bot className="h-6 w-6 text-green-600" />
             <span className="text-xl font-bold">Free AI Property Legal Assistant</span>
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              <Sparkles className="h-3 w-3 mr-1" />
-              Powered by Groq
-            </Badge>
+
           </div>
         </div>
       </nav>
