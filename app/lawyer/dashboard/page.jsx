@@ -68,7 +68,9 @@ export default function LawyerDashboard() {
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="outline" size="sm">Profile</Button>
+            <form action="/auth/logout" method="POST">
             <Button variant="ghost" size="sm">Logout</Button>
+            </form>
           </div>
         </div>
       </nav>

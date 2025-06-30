@@ -65,72 +65,77 @@ export default function ChatPage() {
 
   useEffect(() => {
   const fetchChatData = async () => {
-  try {
-    const res = await fetch("/api/booking/active")
-    const { bookedLawyerIds, bookings } = await res.json()
-    console.log(bookedLawyerIds)
-    if (!bookedLawyerIds || !Array.isArray(bookedLawyerIds)) {
-      console.warn("❌ No booked lawyer IDs found.")
-      return
-    }
+    try {
+      const res = await fetch("/api/booking/active")
+      const { bookedUserIds, bookings } = await res.json()
 
-    if (!bookings || !Array.isArray(bookings)) {
-      console.warn("❌ No bookings array found.")
-      return
-    }
-
-    const lawyerRes = await fetch("/api/lawyers/by-ids", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids: bookedLawyerIds }),
-    })
-    const { lawyers } = await lawyerRes.json()
-
-    if (!lawyers || lawyers.length === 0) {
-      console.warn("❌ No lawyer data returned.")
-      return
-    }
-
-    const lawyerList = lawyers.map((l) => ({
-      id: l._id,
-      name: l.firstName + " " + l.lastName,
-      avatar: l.avatar || "/placeholder.svg",
-      status: l.status || "offline",
-      userType: l.userType,
-      lastMessage: "",
-      unreadCount: 0,
-    }))
-
-    setContacts(lawyerList)
-    setSelectedContactId(lawyerList[0]?.id)
-
-    const convoMap = {}
-    const bookingIdMap = {}
-
-    for (const lawyer of lawyers) {
-      const booking = bookings.find((b) => b.lawyerId === lawyer._id)
-      if (booking) {
-        bookingIdMap[lawyer._id] = booking._id
-
-        const msgRes = await fetch("/api/lawyerchat/messages", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ bookingId: booking._id }),
-        })
-
-        const msgData = await msgRes.json()
-        convoMap[lawyer._id] = msgData.messages || []
+      if (!bookedUserIds || !Array.isArray(bookedUserIds)) {
+        console.warn("❌ No booked user IDs found.")
+        return
       }
-    }
 
-    setConversations(convoMap)
-    setBookingMap(bookingIdMap)
-  } catch (err) {
-    console.error("❌ Failed to fetch chat data:", err)
-  }
+      if (!bookings || !Array.isArray(bookings)) {
+        console.warn("❌ No bookings array found.")
+        return
+      }
+
+      // Fetch user info for all bookedUserIds (can be lawyers or clients)
+      const userRes = await fetch("/api/users/by-ids", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: bookedUserIds }),
+      })
+
+      const { users } = await userRes.json()
+
+      if (!users || users.length === 0) {
+        console.warn("❌ No user data returned.")
+        return
+      }
+
+      const contactList = users.map((u) => ({
+        id: u._id,
+        name: u.firstName + " " + u.lastName,
+        avatar: u.avatar || "/placeholder.svg",
+        status: u.status || "offline",
+        userType: u.userType,
+        lastMessage: "",
+        unreadCount: 0,
+      }))
+
+      setContacts(contactList)
+      if (contactList.length > 0) {
+  setSelectedContactId(contactList[0].id)
 }
 
 
+      const convoMap = {}
+      const bookingIdMap = {}
+
+      for (const user of users) {
+        const booking = bookings.find(
+          (b) => b.lawyerId === user._id || b.userId === user._id
+        )
+        if (booking) {
+          bookingIdMap[user._id] = booking._id
+
+          const msgRes = await fetch("/api/lawyerchat/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ bookingId: booking._id }),
+          })
+
+          const msgData = await msgRes.json()
+          convoMap[user._id] = msgData.messages || []
+        }
+      }
+
+      setConversations(convoMap)
+      setBookingMap(bookingIdMap)
+    } catch (err) {
+      console.error("❌ Failed to fetch chat data:", err)
+    }
+  }
 
   fetchChatData()
 }, [])
@@ -138,7 +143,8 @@ export default function ChatPage() {
 
 
 
-  const getBookingIdFor = (lawyerId) => bookingMap[lawyerId]
+
+const getBookingIdFor = (contactId) => bookingMap[contactId]
 
   const handleContactSelect = async (contactId) => {
     setSelectedContactId(contactId)
@@ -282,10 +288,11 @@ export default function ChatPage() {
                         <Avatar className="h-12 w-12">
                           <AvatarImage src={contact.avatar || "/placeholder.svg"} />
                           <AvatarFallback>
-                            {contact.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
+                            {(contact.name || "")
+  .split(" ")
+  .map((n) => n[0])
+  .join("") || "?"}
+
                           </AvatarFallback>
                         </Avatar>
                         <div
@@ -469,14 +476,19 @@ export default function ChatPage() {
 
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
-            {currentMessages.map((message, index) => {
+           {currentMessages.map((message, index) => {
   if (!message || !message.senderId) return null;
-              //console.log(message)
+
+  const isSentByMe = message.senderId === myUserId; // <-- updated
+
   return (
-    <div key={message._id || index} className={`flex ${message.senderType === "client" ? "justify-end" : "justify-start"}`}>
+    <div
+      key={message._id || index}
+      className={`flex ${isSentByMe ? "justify-end" : "justify-start"}`}
+    >
       <div
         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-          message.senderId === "user"
+          isSentByMe
             ? "bg-blue-500 text-white"
             : "bg-white border border-gray-200 text-gray-900"
         }`}
@@ -484,12 +496,15 @@ export default function ChatPage() {
         <p className="text-sm break-words">{message.content}</p>
         <div
           className={`flex items-center justify-between mt-1 ${
-            message.senderId === "user" ? "text-blue-100" : "text-gray-500"
+            isSentByMe ? "text-blue-100" : "text-gray-500"
           }`}
         >
           <span className="text-xs">{formatTime(message.timestamp)}</span>
-          {message.senderId === "user" && (
-            <Badge variant={message.status === "read" ? "default" : "secondary"} className="text-xs ml-2">
+          {isSentByMe && (
+            <Badge
+              variant={message.status === "read" ? "default" : "secondary"}
+              className="text-xs ml-2"
+            >
               {message.status}
             </Badge>
           )}
@@ -498,6 +513,10 @@ export default function ChatPage() {
     </div>
   )
 })}
+
+
+
+
 
             <div ref={messagesEndRef} />
           </div>
@@ -599,10 +618,11 @@ export default function ChatPage() {
                   <Avatar className="h-32 w-32">
                     <AvatarImage src={selectedContact.avatar || "/placeholder.svg"} />
                     <AvatarFallback className="text-4xl">
-                      {selectedContact.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
+                     {(selectedContact?.name || "")
+  .split(" ")
+  .map((n) => n[0])
+  .join("") || "?"}
+
                     </AvatarFallback>
                   </Avatar>
                 ) : (
