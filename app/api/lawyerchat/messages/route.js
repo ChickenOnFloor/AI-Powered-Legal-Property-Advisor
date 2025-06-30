@@ -9,19 +9,16 @@ export async function POST(req) {
     console.log("✅ Connected to DB")
 
     const user = await getAuthUser(req)
-    console.log("👤 Authenticated user:", user)
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
     }
 
     const { bookingId } = await req.json()
-    console.log("📦 Booking ID received:", bookingId)
     if (!bookingId) {
       return new Response(JSON.stringify({ error: "Booking ID missing" }), { status: 400 })
     }
 
     const booking = await Booking.findById(bookingId)
-    console.log("📑 Booking fetched:", booking)
 
     if (
       !booking ||
@@ -33,7 +30,6 @@ export async function POST(req) {
     }
 
     const messages = await Message.find({ bookingId }).sort({ timestamp: 1 })
-    console.log("💬 Messages fetched:", messages)
 
     return new Response(JSON.stringify({ messages }), { status: 200 })
   } catch (err) {
