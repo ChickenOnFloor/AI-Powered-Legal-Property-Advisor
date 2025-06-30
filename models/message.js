@@ -11,6 +11,11 @@ const MessageSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  senderType: {
+    type: String,
+    enum: ["client", "lawyer"], // Matches your API: "user" for client, "lawyer" for lawyer
+    required: true,
+  },
   content: {
     type: String,
     required: true,

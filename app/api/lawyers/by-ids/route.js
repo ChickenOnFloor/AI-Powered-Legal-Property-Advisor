@@ -16,7 +16,7 @@ export async function POST(req) {
     const lawyers = await User.find({
       _id: { $in: ids },
       userType: "lawyer",
-    }).select("firstName lastName email image _id")
+    }).select("firstName lastName email image _id userType")
 
     return NextResponse.json({ lawyers })
   } catch (err) {
