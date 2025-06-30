@@ -1,16 +1,12 @@
-// booking/page.jsx (fully dynamic with booking form and backend integration)
 "use client"
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Calendar,
   ArrowLeft,
@@ -30,21 +26,9 @@ export default function BookingPage() {
   const lawyerId = params?.lawyerId?.toString()
 
   const [lawyer, setLawyer] = useState(null)
-  const [selectedDate, setSelectedDate] = useState("")
-  const [selectedTime, setSelectedTime] = useState("")
-  const [userName, setUserName] = useState("")
-  const [userEmail, setUserEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [alreadyBooked, setAlreadyBooked] = useState(false)
-
-  const availableSlots = {
-    "2024-01-15": ["09:00", "10:30", "14:00", "15:30"],
-    "2024-01-16": ["09:00", "11:00", "13:00", "16:00"],
-    "2024-01-17": ["10:00", "14:30", "16:00"],
-    "2024-01-18": ["09:30", "11:30", "15:00"],
-    "2024-01-19": ["09:00", "10:00", "14:00", "15:30", "17:00"],
-  }
 
   useEffect(() => {
     const fetchLawyer = async () => {
@@ -62,35 +46,19 @@ export default function BookingPage() {
   }, [lawyerId])
 
   useEffect(() => {
-    const checkBooking = async () => {
-      try {
-        const res = await fetch(`/api/booking/check?lawyerId=${lawyerId}&userEmail=${userEmail}`)
-        const data = await res.json()
-        setAlreadyBooked(data.booked || false)
-      } catch (err) {
-        console.error("Booking check failed:", err)
-      }
+  const checkBooking = async () => {
+    try {
+      const res = await fetch(`/api/booking/check?lawyerId=${lawyerId}`)
+      const data = await res.json()
+      setAlreadyBooked(data.booked) // true/false based on backend logic
+    } catch (err) {
+      console.error("Booking check failed:", err)
     }
+  }
 
-    if (lawyerId && userEmail) {
-      checkBooking()
-    }
-  }, [lawyerId, userEmail])
+  if (lawyerId) checkBooking()
+}, [lawyerId])
 
-  if (!lawyer) return <div className="p-6 text-center text-gray-600 animate-pulse">Loading lawyer info...</div>
-
-  const sessionPrice = lawyer.sessionRate || 50
-
-  const dates = Object.keys(availableSlots).map((date) => ({
-    value: date,
-    label: new Date(date).toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-    }),
-  }))
-
-  const timeSlots = selectedDate ? availableSlots[selectedDate] || [] : []
 
   const handleBooking = async () => {
     setLoading(true)
@@ -98,21 +66,11 @@ export default function BookingPage() {
       const res = await fetch("/api/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lawyerId,
-          userName,
-          userEmail,
-          selectedDate,
-          selectedTime,
-        }),
+        body: JSON.stringify({ lawyerId }), // userId handled from session on backend
       })
 
       if (res.ok) {
         setSuccess(true)
-        setUserName("")
-        setUserEmail("")
-        setSelectedDate("")
-        setSelectedTime("")
         setAlreadyBooked(true)
       } else {
         const error = await res.json()
@@ -124,6 +82,10 @@ export default function BookingPage() {
     }
     setLoading(false)
   }
+
+  if (!lawyer) return <div className="p-6 text-center text-gray-600 animate-pulse">Loading lawyer info...</div>
+
+  const sessionPrice = lawyer.sessionRate || 50
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -145,7 +107,7 @@ export default function BookingPage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Book Your Session</h1>
-          <p className="text-gray-600">One payment gives you access to both chat and video with your lawyer</p>
+          <p className="text-gray-600">Booking gives you access to chat/video for 2 days with your lawyer</p>
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -189,56 +151,25 @@ export default function BookingPage() {
           <motion.div className="lg:col-span-2 space-y-6" variants={fadeInUp} initial="initial" animate="animate">
             <Card>
               <CardHeader>
-                <CardTitle>Booking Details</CardTitle>
+                <CardTitle>Booking Access</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {alreadyBooked ? (
-                  <div className="text-red-600 font-medium">You have already booked this lawyer.</div>
-                ) : (
-                  <>
-                    <div className="space-y-2">
-                      <Label>Full Name</Label>
-                      <Input placeholder="Your full name" value={userName} onChange={(e) => setUserName(e.target.value)} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Email</Label>
-                      <Input placeholder="you@example.com" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Date</Label>
-                      <Select value={selectedDate} onValueChange={setSelectedDate}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select date" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {dates.map((date) => (
-                            <SelectItem key={date.value} value={date.value}>{date.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {selectedDate && (
-                      <div className="space-y-2">
-                        <Label>Time</Label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {timeSlots.map((time) => (
-                            <Button
-                              key={time}
-                              variant={selectedTime === time ? "default" : "outline"}
-                              onClick={() => setSelectedTime(time)}
-                            >
-                              {time}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    <Button onClick={handleBooking} disabled={loading || !userName || !userEmail || !selectedDate || !selectedTime}>
-                      {loading ? "Booking..." : `Confirm Booking - $${sessionPrice}`}
-                    </Button>
-                    {success && <p className="text-green-600 font-medium">Booking successful!</p>}
-                  </>
-                )}
+  <div className="text-green-600 font-medium">
+    You have already booked this lawyer. Access is active.
+  </div>
+) : (
+  <>
+    <p className="text-sm text-gray-500">
+      Upon booking, you will be granted access to message and video call this lawyer for the next <strong>2 days</strong>.
+    </p>
+    <Button onClick={handleBooking} disabled={loading}>
+      {loading ? "Booking..." : `Confirm Booking - $${sessionPrice}`}
+    </Button>
+    {success && <p className="text-green-600 font-medium">Booking successful! Access is now active for 2 days.</p>}
+  </>
+)}
+
               </CardContent>
             </Card>
           </motion.div>

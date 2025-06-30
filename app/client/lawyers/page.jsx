@@ -25,6 +25,7 @@ export default function LawyersPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRating, setSelectedRating] = useState("")
   const [lawyers, setLawyers] = useState([])
+  const [bookedLawyerIds, setBookedLawyerIds] = useState([])
 
   useEffect(() => {
     const fetchLawyers = async () => {
@@ -37,7 +38,20 @@ export default function LawyersPage() {
       }
     }
 
+    const fetchBookings = async () => {
+      try {
+        const res = await fetch("/api/booking/active")
+        const data = await res.json()
+        if (Array.isArray(data.bookedLawyerIds)) {
+          setBookedLawyerIds(data.bookedLawyerIds)
+        }
+      } catch (err) {
+        console.error("Failed to fetch bookings:", err)
+      }
+    }
+
     fetchLawyers()
+    fetchBookings()
   }, [])
 
   const filteredLawyers = lawyers
@@ -143,68 +157,77 @@ export default function LawyersPage() {
           </div>
 
           <div className="grid gap-6">
-            {filteredLawyers.map((lawyer, index) => (
-              <motion.div
-                key={lawyer._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                      <div className="flex items-start space-x-4 mb-4 lg:mb-0">
-                        <Avatar className="h-20 w-20">
-                          <AvatarImage src={lawyer.image || "/placeholder.svg"} />
-                          <AvatarFallback>
-                            {lawyer.firstName?.[0]}{lawyer.lastName?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h3 className="text-xl font-semibold">
-                              {lawyer.firstName} {lawyer.lastName}
-                            </h3>
-                            {lawyer.verified && (
-                              <Badge className="bg-green-100 text-green-800">Verified</Badge>
-                            )}
-                          </div>
-                          <p className="text-blue-600 font-medium mb-2">{lawyer.specialization}</p>
-                          <p className="text-gray-600 text-sm mb-3">{lawyer.bio}</p>
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
-                            <div className="flex items-center space-x-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="font-medium">{lawyer.rating || "N/A"}</span>
-                              <span>({lawyer.reviewsCount || 0} reviews)</span>
+            {filteredLawyers.map((lawyer, index) => {
+              const isBooked = bookedLawyerIds.includes(lawyer._id)
+              return (
+                <motion.div
+                  key={lawyer._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex items-start space-x-4 mb-4 lg:mb-0">
+                          <Avatar className="h-20 w-20">
+                            <AvatarImage src={lawyer.image || "/placeholder.svg"} />
+                            <AvatarFallback>
+                              {lawyer.firstName?.[0]}{lawyer.lastName?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <h3 className="text-xl font-semibold">
+                                {lawyer.firstName} {lawyer.lastName}
+                              </h3>
+                              {lawyer.verified && (
+                                <Badge className="bg-green-100 text-green-800">Verified</Badge>
+                              )}
                             </div>
-                            {lawyer.location && (
+                            <p className="text-blue-600 font-medium mb-2">{lawyer.specialization}</p>
+                            <p className="text-gray-600 text-sm mb-3">{lawyer.bio}</p>
+                            <div className="flex items-center space-x-4 text-sm text-gray-500">
                               <div className="flex items-center space-x-1">
-                                <MapPin className="h-4 w-4" />
-                                <span>{lawyer.location}</span>
+                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                <span className="font-medium">{lawyer.rating || "N/A"}</span>
+                                <span>({lawyer.reviewsCount || 0} reviews)</span>
                               </div>
-                            )}
+                              {lawyer.location && (
+                                <div className="flex items-center space-x-1">
+                                  <MapPin className="h-4 w-4" />
+                                  <span>{lawyer.location}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex flex-col items-end space-y-3">
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-gray-900">${lawyer.sessionRate}</div>
-                          <div className="text-sm text-gray-500">Complete access package</div>
-                          <div className="text-xs text-green-600 font-medium">Chat + Video included</div>
+                        <div className="flex flex-col items-end space-y-3">
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-gray-900">${lawyer.sessionRate}</div>
+                            <div className="text-sm text-gray-500">Complete access package</div>
+                            <div className="text-xs text-green-600 font-medium">Chat + Video included</div>
+                          </div>
+                          {!isBooked ? (
+                            <Link href={`/client/booking/${lawyer._id}`}>
+                              <Button size="lg" className="w-full">
+                                <CreditCard className="h-4 w-4 mr-2" />
+                                Book Full Access
+                              </Button>
+                            </Link>
+                          ) : (
+                            <Button size="lg" className="w-full" disabled>
+                              Already Hired
+                            </Button>
+                          )}
+                          <div className="text-xs text-gray-500 text-center">48-hour access to both chat & video</div>
                         </div>
-                        <Link href={`/client/booking/${lawyer._id}`}>
-                          <Button size="lg" className="w-full">
-                            <CreditCard className="h-4 w-4 mr-2" />
-                            Book Full Access
-                          </Button>
-                        </Link>
-                        <div className="text-xs text-gray-500 text-center">48-hour access to both chat & video</div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )
+            })}
           </div>
         </motion.div>
       </div>

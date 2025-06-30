@@ -1,3 +1,4 @@
+// models/booking.js
 import mongoose from "mongoose"
 
 const BookingSchema = new mongoose.Schema({
@@ -9,22 +10,15 @@ const BookingSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: false, // optional for guest
-  },
-  userName: {
-    type: String,
     required: true,
   },
-  userEmail: {
+  accessStatus: {
     type: String,
-    required: true,
+    enum: ["enabled", "disabled"],
+    default: "enabled",
   },
-  date: {
-    type: String,
-    required: true,
-  },
-  time: {
-    type: String,
+  expiresAt: {
+    type: Date,
     required: true,
   },
   status: {
