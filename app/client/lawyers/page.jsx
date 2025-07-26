@@ -26,6 +26,7 @@ export default function LawyersPage() {
   const [selectedRating, setSelectedRating] = useState("")
   const [lawyers, setLawyers] = useState([])
   const [bookedLawyerIds, setBookedLawyerIds] = useState([])
+  const [lawyerRatings, setLawyerRatings] = useState({})
 
   useEffect(() => {
     const fetchLawyers = async () => {
@@ -54,6 +55,31 @@ export default function LawyersPage() {
     fetchBookings()
   }, [])
 
+  // Fetch ratings for all lawyers
+  useEffect(() => {
+    const fetchRatings = async () => {
+      const ratings = {}
+      for (const lawyer of lawyers) {
+        try {
+          const res = await fetch(`/api/reviews?lawyerId=${lawyer._id}`)
+          const data = await res.json()
+          ratings[lawyer._id] = {
+            avgRating: data.avgRating ? parseFloat(data.avgRating) : null,
+            reviewCount: data.reviews ? data.reviews.length : 0
+          }
+        } catch (err) {
+          console.error(`Failed to fetch ratings for lawyer ${lawyer._id}:`, err)
+          ratings[lawyer._id] = { avgRating: null, reviewCount: 0 }
+        }
+      }
+      setLawyerRatings(ratings)
+    }
+
+    if (lawyers.length > 0) {
+      fetchRatings()
+    }
+  }, [lawyers])
+
   const filteredLawyers = lawyers
     .filter((lawyer) => {
       const search = searchTerm.toLowerCase()
@@ -68,13 +94,18 @@ export default function LawyersPage() {
 
       const matchesSearch = matchesName || matchesSpecialization
 
+      const lawyerRating = lawyerRatings[lawyer._id]?.avgRating || 0
       const matchesRating =
         !selectedRating || selectedRating === "any" ||
-        lawyer.rating >= parseFloat(selectedRating)
+        lawyerRating >= parseFloat(selectedRating)
 
       return matchesSearch && matchesRating
     })
-    .sort((a, b) => b.rating - a.rating)
+    .sort((a, b) => {
+      const ratingA = lawyerRatings[a._id]?.avgRating || 0
+      const ratingB = lawyerRatings[b._id]?.avgRating || 0
+      return ratingB - ratingA
+    })
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -159,6 +190,8 @@ export default function LawyersPage() {
           <div className="grid gap-6">
             {filteredLawyers.map((lawyer, index) => {
               const isBooked = bookedLawyerIds.includes(lawyer._id)
+              const rating = lawyerRatings[lawyer._id]?.avgRating
+              const reviewCount = lawyerRatings[lawyer._id]?.reviewCount || 0
               return (
                 <motion.div
                   key={lawyer._id}
@@ -190,8 +223,8 @@ export default function LawyersPage() {
                             <div className="flex items-center space-x-4 text-sm text-gray-500">
                               <div className="flex items-center space-x-1">
                                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                <span className="font-medium">{lawyer.rating || "N/A"}</span>
-                                <span>({lawyer.reviewsCount || 0} reviews)</span>
+                                <span className="font-medium">{rating ? rating.toFixed(1) : "N/A"}</span>
+                                <span>({reviewCount} reviews)</span>
                               </div>
                               {lawyer.location && (
                                 <div className="flex items-center space-x-1">

@@ -8,4 +8,7 @@ const CaseSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 })
 
-export default mongoose.models.Case || mongoose.model("Case", CaseSchema)
+const Case = mongoose.models.Case || mongoose.model("Case", CaseSchema)
+
+export { Case }
+export default Case

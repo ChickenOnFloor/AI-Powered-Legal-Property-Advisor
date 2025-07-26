@@ -1,12 +1,14 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MessageCircle, Video, Calendar, ArrowLeft, Star, FileText } from "lucide-react"
+import { MessageCircle, Video, Calendar, ArrowLeft, Star, FileText, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useToast } from "@/components/ui/toast"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -15,62 +17,68 @@ const fadeInUp = {
 }
 
 export default function SessionsPage() {
-  const sessions = [
-  {
-    id: 1,
-    lawyer: {
-      name: "Ayesha Khan",
-      specialization: "Property Disputes & Inheritance",
-      image: "/placeholder.svg?height=40&width=40",
-      rating: 4.9,
-    },
-    type: "video",
-    date: "2024-01-15",
-    time: "14:00",
-    duration: "45 minutes",
-    price: "PKR 12,000",
-    status: "completed",
-    case: "Land Boundary Dispute",
-    summary: "Discussed property demarcation and next legal steps under Punjab Land Revenue Act.",
-  },
-  {
-    id: 2,
-    lawyer: {
-      name: "Usman Ahmed",
-      specialization: "Real Estate Transactions",
-      image: "/placeholder.svg?height=40&width=40",
-      rating: 4.8,
-    },
-    type: "chat",
-    date: "2024-01-12",
-    time: "10:30",
-    duration: "30 minutes",
-    price: "PKR 6,500",
-    status: "completed",
-    case: "Property Sale Agreement Review",
-    summary: "Reviewed the sale deed for urban residential property and identified legal gaps.",
-  },
-  {
-    id: 3,
-    lawyer: {
-      name: "Fatima Siddiqui",
-      specialization: "Tenant-Landlord Law",
-      image: "/placeholder.svg?height=40&width=40",
-      rating: 4.7,
-    },
-    type: "video",
-    date: "2024-01-18",
-    time: "15:30",
-    duration: "45 minutes",
-    price: "PKR 12,000",
-    status: "upcoming",
-    case: "Tenant Eviction Advice",
-    summary: null,
-  }
-]
+  const [sessions, setSessions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const { addToast } = useToast()
 
-  const upcomingSessions = sessions.filter((s) => s.status === "upcoming")
-  const completedSessions = sessions.filter((s) => s.status === "completed")
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const res = await fetch("/api/client/sessions")
+        if (res.ok) {
+          const data = await res.json()
+          setSessions(data.sessions || [])
+        } else {
+          addToast("Failed to load sessions", "error")
+        }
+      } catch (err) {
+        console.error("Failed to fetch sessions:", err)
+        addToast("Failed to load sessions", "error")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSessions()
+  }, [addToast])
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "completed":
+      case "confirmed":
+        return "bg-green-100 text-green-800"
+      case "pending":
+        return "bg-yellow-100 text-yellow-800"
+      case "cancelled":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case "video":
+        return <Video className="h-4 w-4" />
+      case "chat":
+        return <MessageCircle className="h-4 w-4" />
+      case "case_management":
+        return <FileText className="h-4 w-4" />
+      default:
+        return <Calendar className="h-4 w-4" />
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Loading sessions...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -84,175 +92,120 @@ export default function SessionsPage() {
           </Link>
           <div className="flex items-center space-x-2">
             <Calendar className="h-6 w-6 text-blue-600" />
-            <span className="text-xl font-bold">My Sessions</span>
+            <span className="text-xl font-bold">Session History</span>
           </div>
         </div>
       </nav>
 
       <div className="container mx-auto px-4 py-8">
         <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Sessions</h1>
-          <p className="text-gray-600">View your upcoming and completed lawyer consultations</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Sessions</h1>
+          <p className="text-gray-600">View all your legal consultations and case history</p>
         </motion.div>
 
-        <motion.div className="mb-8" variants={fadeInUp} initial="initial" animate="animate">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Upcoming Sessions
+        <div className="space-y-6">
+          {sessions.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No sessions yet</h3>
+              <p className="text-gray-600 mb-6">Start by booking a session with a lawyer or creating a case</p>
+              <div className="flex justify-center space-x-4">
                 <Link href="/client/lawyers">
-                  <Button size="sm">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Book New Session
+                  <Button>
+                    <Video className="h-4 w-4 mr-2" />
+                    Find Lawyers
                   </Button>
                 </Link>
-              </CardTitle>
-              <CardDescription>Your scheduled consultations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {upcomingSessions.length === 0 ? (
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-4">No upcoming sessions</p>
-                  <Link href="/client/lawyers">
-                    <Button>Book Your First Session</Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {upcomingSessions.map((session) => (
-                    <div key={session.id} className="p-4 border rounded-lg bg-blue-50 border-blue-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <Avatar className="h-12 w-12">
-                            <AvatarImage src={session.lawyer.image || "/placeholder.svg"} />
-                            <AvatarFallback>
-                              {session.lawyer.name.split(" ").map((n) => n[0]).join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h4 className="font-semibold">{session.lawyer.name}</h4>
-                            <p className="text-sm text-gray-600">{session.lawyer.specialization}</p>
-                            <div className="flex items-center space-x-2 text-sm text-gray-500">
-                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              <span>{session.lawyer.rating}</span>
-                              <span>•</span>
-                              <span>{session.case}</span>
+                <Link href="/client/ai-chat">
+                  <Button variant="outline">
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Free AI Chat
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          ) : (
+            sessions.map((session, index) => (
+              <motion.div
+                key={session.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                      <div className="flex items-start space-x-4 mb-4 lg:mb-0">
+                        <Avatar className="h-16 w-16">
+                          <AvatarImage src={session.lawyer.image} />
+                          <AvatarFallback>
+                            {session.lawyer.name.split(" ").map(n => n[0]).join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h3 className="text-lg font-semibold">{session.lawyer.name}</h3>
+                            <div className="flex items-center space-x-1">
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm font-medium">{session.lawyer.rating}</span>
                             </div>
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center space-x-2 mb-2">
-                            {session.type === "video" ? (
-                              <Video className="h-4 w-4 text-blue-600" />
-                            ) : (
-                              <MessageCircle className="h-4 w-4 text-blue-600" />
-                            )}
-                            <Badge variant="outline">{session.type === "video" ? "Video Call" : "Chat Session"}</Badge>
+                          <p className="text-blue-600 font-medium mb-2">{session.lawyer.specialization}</p>
+                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                            <div className="flex items-center space-x-1">
+                              {getTypeIcon(session.type)}
+                              <span className="capitalize">{session.type.replace('_', ' ')}</span>
+                            </div>
+                            <span>{session.date}</span>
+                            <span>{session.time}</span>
+                            <span>{session.duration}</span>
                           </div>
-                          <p className="text-sm font-medium">
-                            {new Date(session.date).toLocaleDateString("en-PK")} at {session.time}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {session.duration} • PKR {session.price}
-                          </p>
                         </div>
                       </div>
-                      <div className="flex space-x-2 mt-4">
-                        <Button size="sm" className="flex-1">
-                          {session.type === "video" ? "Join Video Call" : "Start Chat"}
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          Reschedule
-                        </Button>
+                      <div className="flex flex-col items-end space-y-3">
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-gray-900">{session.price}</div>
+                          <Badge className={getStatusColor(session.status)}>
+                            {session.status}
+                          </Badge>
+                        </div>
+                        <div className="flex space-x-2">
+                          {session.type === "booking" && session.accessStatus === "enabled" && (
+                            <Link href="/chat">
+                              <Button size="sm">
+                                <MessageCircle className="h-4 w-4 mr-2" />
+                                Chat
+                              </Button>
+                            </Link>
+                          )}
+                          {session.type === "case" && (
+                            <Button size="sm" variant="outline">
+                              <FileText className="h-4 w-4 mr-2" />
+                              View Case
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={fadeInUp} initial="initial" animate="animate">
-          <Card>
-            <CardHeader>
-              <CardTitle>Session History</CardTitle>
-              <CardDescription>Your completed consultations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {completedSessions.length === 0 ? (
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No completed sessions yet</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {completedSessions.map((session) => (
-                    <div key={session.id} className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-4">
-                          <Avatar className="h-12 w-12">
-                            <AvatarImage src={session.lawyer.image || "/placeholder.svg"} />
-                            <AvatarFallback>
-                              {session.lawyer.name.split(" ").map((n) => n[0]).join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h4 className="font-semibold">{session.lawyer.name}</h4>
-                            <p className="text-sm text-gray-600">{session.lawyer.specialization}</p>
-                            <div className="flex items-center space-x-2 text-sm text-gray-500">
-                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              <span>{session.lawyer.rating}</span>
-                              <span>•</span>
-                              <span>{session.case}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center space-x-2 mb-2">
-                            {session.type === "video" ? (
-                              <Video className="h-4 w-4 text-green-600" />
-                            ) : (
-                              <MessageCircle className="h-4 w-4 text-green-600" />
-                            )}
-                            <Badge variant="secondary">Completed</Badge>
-                          </div>
-                          <p className="text-sm font-medium">
-                            {new Date(session.date).toLocaleDateString("en-PK")} at {session.time}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {session.duration} • PKR {session.price}
-                          </p>
-                        </div>
-                      </div>
-                      {session.summary && (
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <p className="text-sm text-gray-700">
-                            <strong>Summary:</strong> {session.summary}
-                          </p>
-                        </div>
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <h4 className="font-medium mb-1">{session.case}</h4>
+                      <p className="text-sm text-gray-600">{session.summary}</p>
+                      {session.expiresAt && (
+                        <p className="text-xs text-gray-500 mt-2">
+                          Access expires: {new Date(session.expiresAt).toLocaleString()}
+                        </p>
                       )}
-                      <div className="flex space-x-2 mt-3">
-                        <Button size="sm" variant="outline">
-                          View Details
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          Download Receipt
-                        </Button>
-                        <Link href={`/client/booking/${session.lawyer.name.replace(" ", "-").toLowerCase()}`}>
-                          <Button size="sm" variant="outline">
-                            Book Again
-                          </Button>
-                        </Link>
-                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   )

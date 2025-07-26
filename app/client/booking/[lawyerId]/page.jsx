@@ -14,6 +14,7 @@ import {
   MapPin,
 } from "lucide-react"
 import Link from "next/link"
+import ReviewForm from "@/components/ReviewForm"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -29,6 +30,8 @@ export default function BookingPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [alreadyBooked, setAlreadyBooked] = useState(false)
+  const [reviews, setReviews] = useState([])
+  const [avgRating, setAvgRating] = useState(null)
 
   useEffect(() => {
     const fetchLawyer = async () => {
@@ -59,6 +62,35 @@ export default function BookingPage() {
   if (lawyerId) checkBooking()
 }, [lawyerId])
 
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`/api/reviews?lawyerId=${lawyerId}`)
+        const data = await res.json()
+        setReviews(data.reviews || [])
+        setAvgRating(data.avgRating ? parseFloat(data.avgRating) : null)
+      } catch (err) {
+        console.error("Failed to fetch reviews:", err)
+      }
+    }
+
+    if (lawyerId) fetchReviews()
+  }, [lawyerId])
+
+  const handleReviewSubmitted = () => {
+    // Refresh reviews after submission
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`/api/reviews?lawyerId=${lawyerId}`)
+        const data = await res.json()
+        setReviews(data.reviews || [])
+        setAvgRating(data.avgRating ? parseFloat(data.avgRating) : null)
+      } catch (err) {
+        console.error("Failed to fetch reviews:", err)
+      }
+    }
+    fetchReviews()
+  }
 
   const handleBooking = async () => {
     setLoading(true)
@@ -133,8 +165,8 @@ export default function BookingPage() {
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <div className="flex items-center space-x-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span>{lawyer.rating || 4.8}</span>
-                        <span>({lawyer.reviews || 120} reviews)</span>
+                        <span>{avgRating ? avgRating.toFixed(1) : "N/A"}</span>
+                        <span>({reviews.length} reviews)</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-1 text-sm text-gray-500 mt-1">
@@ -170,6 +202,52 @@ export default function BookingPage() {
   </>
 )}
 
+              </CardContent>
+            </Card>
+
+            {/* Reviews Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Reviews</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {reviews.length === 0 ? (
+                  <p className="text-gray-500 text-center py-4">No reviews yet. Be the first to review this lawyer!</p>
+                ) : (
+                  <div className="space-y-4">
+                    {reviews.map((review) => (
+                      <div key={review._id} className="border-b border-gray-100 pb-4 last:border-b-0">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="flex items-center space-x-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`h-4 w-4 ${
+                                  star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-sm font-medium">{review.rating}/5</span>
+                        </div>
+                        {review.comment && (
+                          <p className="text-gray-700 text-sm mb-2">{review.comment}</p>
+                        )}
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>{review.clientId?.firstName} {review.clientId?.lastName}</span>
+                          <span>{new Date(review.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Review Form */}
+                {alreadyBooked && (
+                  <div className="mt-6 pt-4 border-t border-gray-200">
+                    <ReviewForm lawyerId={lawyerId} onReviewSubmitted={handleReviewSubmitted} />
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>

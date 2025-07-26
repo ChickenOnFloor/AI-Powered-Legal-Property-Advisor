@@ -1,6 +1,6 @@
 import { getAuthUser } from "@/lib/getAuthUser"
 import {connectToDB} from "@/lib/db"
-import { Booking } from "@/models/booking"
+import { Booking } from "@/models/Booking"
 
 export async function POST(req) {
   await connectToDB()

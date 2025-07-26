@@ -1,64 +1,80 @@
 // app/api/register/route.js
+import { NextResponse } from "next/server"
 import { connectToDB } from "@/lib/db"
 import { User } from "@/models/User"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
-import { cookies } from "next/headers"
+import { emailService } from "@/lib/email"
 
 export async function POST(req) {
   try {
+    await connectToDB()
     const body = await req.json()
-    const { firstName, lastName, email, password, userType, specialization } = body
+    const { firstName, lastName, email, password, userType } = body
 
     if (!firstName || !lastName || !email || !password || !userType) {
-      return Response.json({ message: "Missing fields" }, { status: 400 })
+      return NextResponse.json({ message: "Missing required fields" }, { status: 400 })
     }
 
-    await connectToDB()
-
+    // Check if user already exists
     const existingUser = await User.findOne({ email })
     if (existingUser) {
-      return Response.json({ message: "Email already exists" }, { status: 409 })
+      return NextResponse.json({ message: "User already exists" }, { status: 409 })
     }
-    const hashedPassword = await bcrypt.hash(password, 10)
-    const newUser = await User.create({
+
+    // Hash password
+    const saltRounds = 12
+    const hashedPassword = await bcrypt.hash(password, saltRounds)
+
+    // Create user
+    const user = await User.create({
       firstName,
       lastName,
       email,
       password: hashedPassword,
       userType,
-      specialization: specialization || "property",
+      verified: userType === "client" // Clients are auto-verified, lawyers need admin approval
     })
+
+    // Generate JWT token
     const token = jwt.sign(
-      {
-        id: newUser._id,
-        firstName: newUser.firstName,
-        userType: newUser.userType,
-      },
+      { id: user._id, email: user.email, userType: user.userType },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     )
-    const cookieStore = await cookies()
-    cookieStore.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60,
-      path: "/",
+
+    // Send welcome email
+    try {
+      await emailService.sendWelcomeEmail(user)
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError)
+      // Don't fail registration if email fails
+    }
+
+    // Set cookie
+    const response = NextResponse.json({
+      success: true,
+      message: "Registration successful",
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        userType: user.userType,
+        verified: user.verified
+      }
     })
 
-    return Response.json(
-      {
-        message: "User registered and logged in",
-        user: {
-          id: newUser._id,
-          firstName: newUser.firstName,
-          userType: newUser.userType,
-        },
-      },
-      { status: 201 }
-    )
-  } catch (err) {
-    console.error(err)
-    return Response.json({ message: "Server error" }, { status: 500 })
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    })
+
+    return response
+  } catch (error) {
+    console.error("Registration error:", error)
+    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
   }
 }

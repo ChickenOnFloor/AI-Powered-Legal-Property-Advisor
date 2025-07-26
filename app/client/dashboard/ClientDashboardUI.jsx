@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Bot, Star, Search, Plus, Lock, CreditCard, Clock } from "lucide-react"
+import { Bot, Star, Search, Plus, Lock, CreditCard, Clock, Loader2, User, Settings, FileText } from "lucide-react"
 import Link from "next/link"
 import {
   Dialog,
@@ -18,36 +18,67 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/components/ui/toast"
+import NotificationBell from "@/components/NotificationBell"
 
 export default function ClientDashboardUI({ user }) {
   const [lawyers, setLawyers] = useState([])
   const [recentCases, setRecentCases] = useState([])
   const [newCase, setNewCase] = useState({ title: "", description: "" })
+  const [loading, setLoading] = useState(true)
+  const [lawyerRatings, setLawyerRatings] = useState({})
+  const { addToast } = useToast()
 
   useEffect(() => {
-    const fetchLawyers = async () => {
+    const fetchData = async () => {
+      setLoading(true)
       try {
-        const res = await fetch("/api/lawyers")
-        const data = await res.json()
-        setLawyers(data.lawyers || [])
+        // Fetch lawyers
+        const lawyersRes = await fetch("/api/lawyers")
+        const lawyersData = await lawyersRes.json()
+        setLawyers(lawyersData.lawyers || [])
+
+        // Fetch cases
+        const casesRes = await fetch("/api/cases")
+        const casesData = await casesRes.json()
+        if (casesData.success) {
+          setRecentCases(casesData.cases || [])
+        }
       } catch (err) {
-        console.error("Failed to fetch lawyers:", err)
+        console.error("Failed to fetch dashboard data:", err)
+        addToast("Failed to load dashboard data", "error")
+      } finally {
+        setLoading(false)
       }
     }
 
-    const fetchRecentCases = async () => {
-      try {
-        const res = await fetch("/api/cases")
-        const data = await res.json()
-        if (data.success) setRecentCases(data.cases)
-      } catch (err) {
-        console.error("Failed to fetch cases:", err)
+    fetchData()
+  }, [addToast])
+
+  // Fetch ratings for lawyers
+  useEffect(() => {
+    const fetchRatings = async () => {
+      const ratings = {}
+      for (const lawyer of lawyers) {
+        try {
+          const res = await fetch(`/api/reviews?lawyerId=${lawyer._id}`)
+          const data = await res.json()
+          ratings[lawyer._id] = {
+            avgRating: data.avgRating ? parseFloat(data.avgRating) : null,
+            reviewCount: data.reviews ? data.reviews.length : 0
+          }
+        } catch (err) {
+          console.error(`Failed to fetch ratings for lawyer ${lawyer._id}:`, err)
+          ratings[lawyer._id] = { avgRating: null, reviewCount: 0 }
+        }
       }
+      setLawyerRatings(ratings)
     }
 
-    fetchLawyers()
-    fetchRecentCases()
-  }, [])
+    if (lawyers.length > 0) {
+      fetchRatings()
+    }
+  }, [lawyers])
 
   const handleCreateCase = async () => {
     try {
@@ -61,9 +92,13 @@ export default function ClientDashboardUI({ user }) {
         setRecentCases((prev) => [data.case, ...prev])
         setNewCase({ title: "", description: "" })
         document.getElementById("close-dialog")?.click()
+        addToast("Case created successfully!", "success")
+      } else {
+        addToast(data.error || "Failed to create case", "error")
       }
     } catch (err) {
       console.error("Failed to create case:", err)
+      addToast("Failed to create case", "error")
     }
   }
 
@@ -81,6 +116,17 @@ export default function ClientDashboardUI({ user }) {
     },
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <nav className="bg-white/80 backdrop-blur-md border-b">
@@ -91,9 +137,24 @@ export default function ClientDashboardUI({ user }) {
             </div>
             <span className="text-xl font-bold">Client Dashboard</span>
           </div>
-          <form action="/auth/logout" method="POST">
-            <Button variant="ghost" size="sm" type="submit">Logout</Button>
-          </form>
+          <div className="flex items-center space-x-4">
+            <NotificationBell />
+            <Link href="/profile">
+              <Button variant="outline" size="sm">
+                <User className="h-4 w-4 mr-2" />
+                Profile
+              </Button>
+            </Link>
+            <Link href="/settings">
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+            </Link>
+            <form action="/auth/logout" method="POST">
+              <Button variant="ghost" size="sm" type="submit">Logout</Button>
+            </form>
+          </div>
         </div>
       </nav>
 
@@ -115,6 +176,8 @@ export default function ClientDashboardUI({ user }) {
             icon: Search, title: "Find Property Lawyers", description: "Browse and book property law specialists", href: "/client/lawyers", color: "bg-blue-500", badge: "PAY PER SESSION", badgeColor: "bg-blue-100 text-blue-800",
           }, {
             icon: Clock, title: "Recent Activities", description: "View all your recent interactions", href: "/client/sessions", color: "bg-orange-500", badge: "SESSION HISTORY", badgeColor: "bg-orange-100 text-orange-800",
+          }, {
+            icon: FileText, title: "Document Management", description: "Upload and manage legal documents", href: "/documents", color: "bg-purple-500", badge: "SECURE", badgeColor: "bg-purple-100 text-purple-800",
           }].map((action, index) => (
             <motion.div key={index} variants={fadeInUp}>
               <Link href={action.href}>
@@ -189,7 +252,7 @@ export default function ClientDashboardUI({ user }) {
                         <div>
                           <h4 className="font-medium">{case_.title}</h4>
                           <p className="text-sm text-gray-600">Lawyer: {case_.lawyer}</p>
-                          <p className="text-xs text-gray-500">{case_.date}</p>
+                          <p className="text-xs text-gray-500">{new Date(case_.date).toLocaleDateString()}</p>
                         </div>
                         <Badge
                           variant={
@@ -219,32 +282,44 @@ export default function ClientDashboardUI({ user }) {
                   {lawyers.length === 0 ? (
                     <p className="text-sm text-gray-500">No lawyers found.</p>
                   ) : (
-                    lawyers.map((lawyer) => (
-                      <div key={lawyer._id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <Avatar>
-                            <AvatarImage src="/placeholder.svg" />
-                            <AvatarFallback>
-                              {lawyer.firstName[0]}{lawyer.lastName[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h4 className="font-medium">{lawyer.firstName} {lawyer.lastName}</h4>
-                            <p className="text-sm text-gray-600">{lawyer.specialization}</p>
-                            <div className="flex items-center space-x-1 text-xs text-gray-500">
-                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              <span>{lawyer.rating || "N/A"}</span>
+                    lawyers
+                      .sort((a, b) => {
+                        const ratingA = lawyerRatings[a._id]?.avgRating || 0
+                        const ratingB = lawyerRatings[b._id]?.avgRating || 0
+                        return ratingB - ratingA
+                      })
+                      .slice(0, 3)
+                      .map((lawyer) => {
+                        const rating = lawyerRatings[lawyer._id]?.avgRating
+                        const reviewCount = lawyerRatings[lawyer._id]?.reviewCount || 0
+                        return (
+                          <div key={lawyer._id} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div className="flex items-center space-x-3">
+                              <Avatar>
+                                <AvatarImage src="/placeholder.svg" />
+                                <AvatarFallback>
+                                  {lawyer.firstName[0]}{lawyer.lastName[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <h4 className="font-medium">{lawyer.firstName} {lawyer.lastName}</h4>
+                                <p className="text-sm text-gray-600">{lawyer.specialization}</p>
+                                <div className="flex items-center space-x-1 text-xs text-gray-500">
+                                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                  <span>{rating ? rating.toFixed(1) : "N/A"}</span>
+                                  <span>({reviewCount} reviews)</span>
+                                </div>
+                              </div>
                             </div>
+                            <Link href={`/client/booking/${lawyer._id}`}>
+                              <Button size="sm">
+                                <CreditCard className="h-4 w-4 mr-2" />
+                                Book Access
+                              </Button>
+                            </Link>
                           </div>
-                        </div>
-                        <Link href={`/client/booking/${lawyer._id}`}>
-                          <Button size="sm">
-                            <CreditCard className="h-4 w-4 mr-2" />
-                            Book Access
-                          </Button>
-                        </Link>
-                      </div>
-                    ))
+                        )
+                      })
                   )}
                 </div>
               </CardContent>

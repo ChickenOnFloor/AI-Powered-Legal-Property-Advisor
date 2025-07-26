@@ -1,7 +1,7 @@
 // route: /api/caseoflawyer
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/db";
-import Case from "@/models/case";
+import Case from "@/models/Case";
 import { User } from "@/models/User";  
 export async function GET(req) {
   try {

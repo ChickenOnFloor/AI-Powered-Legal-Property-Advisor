@@ -5,6 +5,18 @@ export async function POST(req) {
     const body = await req.json()
     const messages = body.messages || []
 
+    if (!process.env.GEMINI_API_KEY) {
+      console.error("❌ GEMINI_API_KEY not configured")
+      return NextResponse.json(
+        {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: "AI service is currently unavailable. Please try again later.",
+        },
+        { status: 503 }
+      )
+    }
+
     const systemMessage = {
       role: "user",
       content: `
@@ -28,7 +40,7 @@ Do NOT answer unrelated questions (e.g., about other countries or non-property i
     const userMessagesOnly = messages.filter((m) => m.role === "user")
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY || "AIzaSyA3LUv6YTwllNCeVwhqG87gnMlmUH3ec9g"}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -41,10 +53,21 @@ Do NOT answer unrelated questions (e.g., about other countries or non-property i
       }
     )
 
+    if (!geminiRes.ok) {
+      console.error("❌ Gemini API error:", geminiRes.status, geminiRes.statusText)
+      return NextResponse.json(
+        {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: "I'm having trouble connecting to my knowledge base. Please try again in a moment.",
+        },
+        { status: 503 }
+      )
+    }
+
     const data = await geminiRes.json()
 
     const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't find an answer."
-    //console.log("✅ Final reply sent to client:", aiReply)
 
     return NextResponse.json({
       id: Date.now().toString(),
