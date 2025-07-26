@@ -1,352 +1,211 @@
-# Legal Property Advisor - AI-Powered Legal Consultation Platform
+# Legal Property Advisor
 
-A comprehensive, production-ready legal consultation platform that combines AI-powered guidance with human lawyer expertise for property-related legal matters.
+AI-Powered Legal Consultation Platform for Property Law
 
-## 🚀 **NEW FEATURES ADDED**
+---
 
-### **Real-Time Features**
-- ✅ **WebSocket Integration** - Live chat between clients and lawyers
-- ✅ **Real-time Notifications** - Instant updates for messages, bookings, and case updates
-- ✅ **Typing Indicators** - See when someone is typing
-- ✅ **Online Status** - Real-time online/offline status
-- ✅ **Live Document Sharing** - Share documents in real-time during consultations
+A production-ready platform combining advanced AI (Google Gemini) and real lawyers for property-related legal matters. Features real-time chat, video calls, document management, and robust admin tools.
 
-### **Email Notification System**
-- ✅ **Welcome Emails** - Automated welcome emails for new users
-- ✅ **Booking Confirmations** - Email confirmations for lawyer bookings
-- ✅ **Message Notifications** - Email alerts for new messages
-- ✅ **Case Updates** - Email notifications for case status changes
-- ✅ **Review Notifications** - Email alerts for new reviews
-- ✅ **Lawyer Verification** - Email notifications for verification status
+## 🚀 Key Features
 
-### **Cloud Storage System**
-- ✅ **Document Upload** - Secure file upload with validation
-- ✅ **Image Upload** - Profile pictures and document images
-- ✅ **File Management** - Organize and share documents
-- ✅ **Storage Validation** - File type and size validation
-- ✅ **Presigned URLs** - Secure file access
+- **AI Legal Assistant**: Instant property law guidance via Gemini AI
+- **Real-Time Chat & Video**: WebSocket-powered messaging, typing indicators, online status, and video calls
+- **Booking System**: 48-hour lawyer access, real-time availability, secure sessions
+- **Case Management**: Create, track, and update legal cases with document uploads
+- **Document Storage**: Secure uploads, sharing, presigned URLs, and validation
+- **Notifications**: Real-time and email alerts for bookings, messages, reviews, and cases
+- **Admin Dashboard**: Analytics, lawyer verification, user management, revenue tracking
+- **PWA & Mobile**: Installable, offline support, push notifications, mobile-optimized UI
+- **Security**: JWT auth, bcrypt password hashing, RBAC, CORS, rate limiting, input validation
 
-### **Progressive Web App (PWA)**
-- ✅ **Mobile App Experience** - Install as native app on mobile devices
-- ✅ **Offline Support** - Access cached content when offline
-- ✅ **Service Worker** - Background sync and caching
-- ✅ **Push Notifications** - Browser-based push notifications
-- ✅ **App Manifest** - Native app-like experience
-- ✅ **Mobile Navigation** - Touch-optimized navigation
+## 🛠️ Technology Stack
 
-### **Mobile Optimization**
-- ✅ **Responsive Design** - Optimized for all screen sizes
-- ✅ **Touch Gestures** - Pull-to-refresh and swipe actions
-- ✅ **Mobile Navigation** - Bottom navigation bar for mobile
-- ✅ **Install Prompts** - Easy app installation on mobile
-- ✅ **Mobile Headers** - Optimized headers for mobile screens
+**Frontend**
+- Next.js 14 (App Router)
+- React 18
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Socket.io Client
+- PWA support
 
-## 🎯 **Core Features**
+**Backend**
+- Next.js API Routes
+- MongoDB + Mongoose
+- Socket.io (WebSocket server)
+- JWT, bcryptjs
 
-### **AI-Powered Legal Assistant**
-- Instant legal guidance using Google's Gemini AI
-- Property law expertise and best practices
-- Natural language processing for complex queries
-- Context-aware responses and follow-up suggestions
+**AI & Services**
+- Google Gemini AI
+- Nodemailer (or similar) for email
+- Cloud Storage (S3, GCS, etc.)
 
-### **Lawyer Booking System**
-- Browse verified property lawyers
-- Real-time availability checking
-- 48-hour access periods for consultations
-- Secure booking and payment integration
-- Lawyer verification and rating system
+**Dev Tools**
+- ESLint, PostCSS, Autoprefixer
 
-### **Case Management**
-- Create and track legal cases
-- Document upload and management
-- Case status tracking
-- Lawyer assignment system
-- Case history and updates
+## 📦 Quick Start
 
-### **Review & Rating System**
-- Rate lawyers after consultations
-- Detailed review system with comments
-- Average rating calculations
-- Review moderation and verification
-
-### **Admin Dashboard**
-- Comprehensive platform analytics
-- Lawyer verification management
-- User management and oversight
-- System monitoring and reporting
-- Revenue tracking and insights
-
-### **User Management**
-- Secure authentication system
-- Role-based access control (Client, Lawyer, Admin)
-- Profile management and customization
-- Settings and preferences
-- Privacy controls
-
-## 🛠 **Technology Stack**
-
-### **Frontend**
-- **Next.js 14** - React framework with App Router
-- **React 18** - Modern React with hooks
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first CSS framework
-- **Framer Motion** - Smooth animations
-- **Socket.io Client** - Real-time communication
-- **PWA Support** - Progressive Web App features
-
-### **Backend**
-- **Next.js API Routes** - Serverless API endpoints
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB object modeling
-- **Socket.io** - Real-time WebSocket server
-- **JWT** - JSON Web Token authentication
-- **bcryptjs** - Password hashing
-
-### **AI & External Services**
-- **Google Gemini AI** - Advanced language model
-- **Email Service** - Automated email notifications
-- **Cloud Storage** - File upload and management
-- **PWA Service Worker** - Offline functionality
-
-### **Development Tools**
-- **ESLint** - Code linting
-- **PostCSS** - CSS processing
-- **Autoprefixer** - CSS vendor prefixing
-
-## 📦 **Installation & Setup**
-
-### **Prerequisites**
-- Node.js 18+ 
-- MongoDB 6+
-- npm or pnpm
-
-### **Quick Start**
-
-1. **Clone the repository**
+1. **Clone & Install**
    ```bash
    git clone https://github.com/yourusername/legal-property-advisor.git
    cd legal-property-advisor
-   ```
-
-2. **Install dependencies**
-   ```bash
    npm install
    # or
    pnpm install
    ```
-
-3. **Environment Setup**
+2. **Setup Environment**
    ```bash
    cp .env.example .env.local
+   # Edit .env.local with your credentials
    ```
-   
-   Update `.env.local` with your configuration:
-   ```env
-   MONGODB_URI=mongodb://localhost:27017/legal-advisor
-   JWT_SECRET=your-super-secret-jwt-key
-   GEMINI_API_KEY=your-gemini-api-key
-   NEXT_PUBLIC_SITE_URL=http://localhost:3000
-   ```
-
-4. **Database Setup**
+3. **Run MongoDB** (local or Atlas)
    ```bash
-   # Start MongoDB (if using local instance)
    mongod
-   
-   # The app will automatically create collections on first run
    ```
-
-5. **Run Development Server**
+4. **Start Dev Server**
    ```bash
    npm run dev
    # or
    pnpm dev
    ```
+5. **Access**: [http://localhost:3000](http://localhost:3000)
 
-6. **Access the Application**
-   - Open [http://localhost:3000](http://localhost:3000)
-   - Register as a client or lawyer
-   - Start exploring the platform
+## 🔧 Configuration
 
-## 🏗 **Project Structure**
+**Environment Variables** (see `.env.example`):
+- `MONGODB_URI`, `JWT_SECRET`, `GEMINI_API_KEY`, `NEXT_PUBLIC_SITE_URL`
+- Email: `FROM_EMAIL`, `EMAIL_USER`, `EMAIL_PASS`, etc.
+- Storage: `STORAGE_BASE_URL`, `STORAGE_BUCKET`, AWS keys
+- PWA: `PWA_NAME`, `PWA_THEME_COLOR`, etc.
+
+## 🏗️ Project Structure
 
 ```
-legal-property-advisor/
-├── app/                          # Next.js App Router
-│   ├── api/                      # API endpoints
-│   │   ├── auth/                 # Authentication
-│   │   ├── booking/              # Booking management
-│   │   ├── cases/                # Case management
-│   │   ├── chat/                 # AI chat
-│   │   ├── documents/            # Document management
-│   │   ├── lawyers/              # Lawyer management
-│   │   ├── notifications/        # Notification system
-│   │   ├── reviews/              # Review system
-│   │   └── user/                 # User management
-│   ├── client/                   # Client dashboard
-│   ├── lawyer/                   # Lawyer dashboard
-│   ├── admin/                    # Admin dashboard
-│   └── globals.css               # Global styles
-├── components/                   # Reusable components
-│   ├── ui/                       # UI components
-│   ├── chat/                     # Chat components
-│   └── theme-provider.tsx        # Theme provider
-├── lib/                          # Utility libraries
-│   ├── db.js                     # Database connection
-│   ├── email.js                  # Email service
-│   ├── storage.js                # Cloud storage
-│   └── socket.js                 # WebSocket setup
-├── models/                       # Database models
-├── public/                       # Static assets
-│   ├── manifest.json             # PWA manifest
-│   ├── sw.js                     # Service worker
-│   └── offline.html              # Offline page
-└── types/                        # TypeScript types
+app/         # Next.js App Router (API, pages, dashboards)
+components/  # Reusable UI & chat/video components
+lib/         # Utilities: db, email, storage, socket
+models/      # Mongoose models (User, Booking, Case, etc.)
+public/      # Static assets, manifest, service worker
+styles/      # Global styles
 ```
 
-## 🔧 **Configuration**
+## 📡 API Overview
 
-### **Environment Variables**
+All API endpoints are under `/api/` and follow RESTful conventions. Authentication is required for most endpoints (JWT via cookies or headers).
 
-```env
-# Core Configuration
-MONGODB_URI=mongodb://localhost:27017/legal-advisor
-JWT_SECRET=your-super-secret-jwt-key
-GEMINI_API_KEY=your-gemini-api-key
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+### Auth & User
+- `POST /api/login` — User login
+- `POST /api/register` — User registration
+- `GET /api/auth/me` — Get current user info
+- `POST /api/user/change-password` — Change password
+- `GET/PUT /api/user/profile` — Get/update user profile
+- `GET/PUT /api/user/settings` — Get/update user settings
 
-# Email Configuration
-FROM_EMAIL=noreply@legaladvisor.com
-FROM_NAME=Legal Property Advisor
-EMAIL_SERVICE=smtp.gmail.com
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-email-password
+### Booking & Appointments
+- `POST /api/booking` — Book a lawyer (48-hour access)
+- `GET /api/booking/active` — Get active bookings
+- `POST /api/booking/check` — Check booking status
+- `POST /api/booking/access-check` — Check access for booking
+- `POST /api/appointments` — Create appointment
+- `GET /api/appointments/byLawyer` — Appointments for a lawyer
+- `GET /api/bookings/byLawyer` — Bookings for a lawyer
 
-# Storage Configuration
-STORAGE_BASE_URL=https://storage.legaladvisor.com
-STORAGE_BUCKET=legal-documents
-AWS_ACCESS_KEY_ID=your-aws-access-key
-AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+### Lawyers
+- `GET /api/lawyers` — List/search lawyers
+- `GET /api/lawyers/search` — Search lawyers
+- `GET /api/lawyers/[lawyerId]` — Get lawyer by ID
+- `GET /api/lawyers/clients` — Get lawyer's clients
+- `GET /api/lawyers/by-ids` — Get multiple lawyers by IDs
 
-# PWA Configuration
-PWA_NAME=Legal Property Advisor
-PWA_SHORT_NAME=LegalAdvisor
-PWA_THEME_COLOR=#2563eb
-```
+### Cases
+- `GET /api/cases` — List user cases
+- `POST /api/cases` — Create a case
+- `GET /api/caseoflawyer` — Cases for a lawyer
 
-### **Database Models**
+### Chat & Messaging
+- `POST /api/chat` — AI legal assistant (Gemini)
+- `GET/POST /api/lawyerchat` — Lawyer-client chat
+- `POST /api/lawyerchat/send` — Send message
+- `GET /api/lawyerchat/messages` — Get chat messages
 
-- **User** - User accounts and profiles
-- **Booking** - Lawyer booking sessions
-- **Case** - Legal case management
-- **Review** - Lawyer reviews and ratings
-- **Notification** - User notifications
-- **Document** - File management
-- **Message** - Chat messages
+### Documents
+- `GET/POST /api/documents` — List/upload documents
+- `PUT/DELETE /api/documents` — Update/delete documents
 
-## 🚀 **Deployment**
+### Reviews & Notifications
+- `GET/POST /api/reviews` — List/add reviews
+- `GET/POST /api/notifications` — List/send notifications
 
-### **Vercel Deployment**
+### Video Calls
+- `POST /api/video-calls` — Initiate video call
+- `POST /api/video-calls/offer` — Send call offer
+- `POST /api/video-calls/answer` — Answer call
+- `POST /api/video-calls/ice-candidate` — ICE candidate exchange
 
-1. **Connect to Vercel**
-   ```bash
-   npm i -g vercel
-   vercel login
-   vercel
-   ```
+### Analytics & Admin
+- `GET /api/analytics` — Platform analytics (role-based)
+- `GET /api/admin/stats` — Admin stats
+- `POST /api/admin/verify-lawyer` — Verify lawyer
 
-2. **Set Environment Variables**
-   - Add all environment variables in Vercel dashboard
-   - Configure MongoDB Atlas connection
-   - Set up email service credentials
+## 🗄️ Database Models (Mongoose)
 
-3. **Deploy**
-   ```bash
-   vercel --prod
-   ```
+- **User**: name, email, password, userType (client/lawyer/admin), specialization, image, location, bio, verified, sessionRate, availableSlots, settings (notifications, privacy, preferences)
+- **Booking**: lawyerId, userId, accessStatus, expiresAt, status, createdAt
+- **Case**: title, status, lawyer, date, userId
+- **Review**: lawyerId, clientId, rating, comment (unique per lawyer-client)
+- **Notification**: userId, type, title, message, read, data, priority
+- **Document**: title, description, fileName, fileUrl, fileSize, fileType, uploadedBy, sharedWith, caseId, bookingId, isPublic, tags, status
+- **Message**: bookingId, senderId, senderType, content, timestamp, status
 
-### **Docker Deployment**
+## ⚡ Real-Time & Utilities
 
-1. **Build Docker Image**
-   ```bash
-   docker build -t legal-advisor .
-   ```
+- **WebSocket**: Real-time chat, typing, online status, video call signaling, notifications
+- **Email**: Welcome, booking, message, case, review, verification, password reset
+- **Storage**: File/image/document upload, validation, presigned URLs, sharing
 
-2. **Run Container**
-   ```bash
-   docker run -p 3000:3000 legal-advisor
-   ```
+## 📱 PWA & Mobile
+- Installable on iOS/Android
+- Offline support, push notifications
+- Touch-optimized, responsive, mobile navigation
 
-## 📱 **Mobile App Features**
-
-### **PWA Installation**
-- Add to home screen on iOS and Android
-- Native app-like experience
-- Offline functionality
-- Push notifications
-
-### **Mobile Optimization**
-- Touch-optimized interface
-- Responsive design
-- Mobile navigation
-- Pull-to-refresh
-- Swipe gestures
-
-## 🔒 **Security Features**
-
-- JWT-based authentication
-- Password hashing with bcrypt
-- Role-based access control
-- Input validation and sanitization
-- CORS protection
-- Rate limiting
+## 🔒 Security
+- JWT auth, bcrypt password hashing
+- RBAC (client/lawyer/admin)
+- Input validation, CORS, rate limiting
 - Secure file uploads
 
-## 📊 **Analytics & Monitoring**
+## 🚀 Deployment
 
-- User activity tracking
-- Booking analytics
-- Revenue reporting
-- Performance monitoring
-- Error tracking
-- Usage statistics
+**Vercel**
+```bash
+npm i -g vercel
+vercel login
+vercel
+# Set env vars in dashboard
+vercel --prod
+```
 
-## 🤝 **Contributing**
+**Docker**
+```bash
+docker build -t legal-advisor .
+docker run -p 3000:3000 legal-advisor
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+## 🤝 Contributing
+- Fork, branch, commit, PR
+- Add tests if possible
+- See [LICENSE](LICENSE)
 
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 **Support**
-
-- **Documentation**: [Wiki](https://github.com/yourusername/legal-property-advisor/wiki)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/legal-property-advisor/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/legal-property-advisor/discussions)
-
-## 🎯 **Roadmap**
-
-### **Upcoming Features**
-- [ ] Video calling integration
+## 🗺️ Roadmap
+- [ ] Video calling (WebRTC)
 - [ ] Advanced analytics dashboard
 - [ ] Multi-language support
-- [ ] Advanced document collaboration
+- [ ] Document collaboration
 - [ ] AI-powered case analysis
-- [ ] Integration with legal databases
+- [ ] Legal DB integration
 - [ ] Mobile app (React Native)
 - [ ] Advanced payment processing
-
-### **Performance Optimizations**
-- [ ] Database indexing optimization
-- [ ] CDN integration
-- [ ] Image optimization
-- [ ] Code splitting
-- [ ] Caching strategies
+- [ ] Performance: DB indexing, CDN, image optimization, code splitting, caching
 
 ---
 
