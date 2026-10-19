@@ -4,6 +4,8 @@ import { Booking } from "@/models/Booking"
 import { Case } from "@/models/Case"
 import { getAuthUser } from "@/lib/getAuthUser"
 
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   try {
     await connectToDB()

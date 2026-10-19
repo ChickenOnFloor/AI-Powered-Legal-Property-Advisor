@@ -4,6 +4,8 @@ import { Case } from "@/models/Case"
 import { Notification } from "@/models/Notification"
 import { getAuthUser } from "@/lib/getAuthUser"
 
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   try {
     await connectToDB()

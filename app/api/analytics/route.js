@@ -6,6 +6,8 @@ import { Case } from "@/models/Case"
 import { Review } from "@/models/Review"
 import { getAuthUser } from "@/lib/getAuthUser"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(req) {
   try {
     await connectToDB()

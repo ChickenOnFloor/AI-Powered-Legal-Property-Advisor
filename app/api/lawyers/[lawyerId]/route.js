@@ -5,6 +5,8 @@ import { User } from "@/models/User"
 import { Review } from "@/models/Review"
 import { NextResponse } from "next/server"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(req, { params }) {
   try {
     await connectToDB()

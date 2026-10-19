@@ -3,11 +3,14 @@ import { connectToDB } from "@/lib/db"
 import { User } from "@/models/User"
 import { Review } from "@/models/Review"
 
+// Always query the DB at request time (never prerender at build)
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   try {
     await connectToDB()
 
-    const lawyers = await User.find({ userType: "lawyer" }).select("-password")
+    const lawyers = await User.find({ userType: "lawyer", verified: true }).select("-password")
 
     // Fetch ratings for all lawyers
     const lawyersWithRatings = await Promise.all(

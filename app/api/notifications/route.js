@@ -3,6 +3,8 @@ import { connectToDB } from "@/lib/db"
 import { Notification } from "@/models/Notification"
 import { getAuthUser } from "@/lib/getAuthUser"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(req) {
   try {
     await connectToDB()

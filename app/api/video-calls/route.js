@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { connectToDB } from "@/lib/db"
 import { getAuthUser } from "@/lib/getAuthUser"
 
+export const dynamic = "force-dynamic"
+
 // Mock video call model (in a real app, you'd create a proper model)
 const videoCallSchema = {
   id: String,

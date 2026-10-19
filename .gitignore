@@ -26,3 +26,6 @@ Thumbs.db
 
 # Optional: Ignore test coverage output
 coverage/
+
+.env.development
+*.tsbuildinfo

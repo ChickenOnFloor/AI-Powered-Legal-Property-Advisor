@@ -41,18 +41,9 @@ export default function RealTimeChat({ bookingId, recipientId, recipientName, re
 
   useEffect(() => {
     // Initialize socket connection
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('token='))
-      ?.split('=')[1]
-
-    if (!token) {
-      addToast("Authentication required", "error")
-      return
-    }
-
-    const newSocket = io(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000", {
-      auth: { token }
+    // The auth cookie is httpOnly; the browser sends it with the handshake
+    const newSocket = io(process.env.NEXT_PUBLIC_SITE_URL || window.location.origin, {
+      withCredentials: true
     })
 
     newSocket.on('connect', () => {
@@ -64,6 +55,13 @@ export default function RealTimeChat({ bookingId, recipientId, recipientName, re
     newSocket.on('disconnect', () => {
       setIsConnected(false)
       console.log('Disconnected from chat server')
+    })
+
+    newSocket.on('connect_error', (err) => {
+      setLoading(false)
+      if (err.message === 'Authentication error') {
+        addToast("Authentication required", "error")
+      }
     })
 
     newSocket.on('receive_message', (data) => {

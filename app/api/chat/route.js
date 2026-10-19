@@ -1,9 +1,40 @@
 import { NextResponse } from "next/server"
+import { getAuthUser } from "@/lib/getAuthUser"
+
+const MAX_HISTORY = 20
+const MAX_MESSAGE_LENGTH = 4000
+
+// Gemini expects a conversation that starts with the user and alternates roles,
+// so drop any leading assistant greeting and merge consecutive same-role turns.
+function toGeminiContents(messages) {
+  const contents = []
+  for (const msg of messages.slice(-MAX_HISTORY)) {
+    if (typeof msg?.content !== "string" || !msg.content.trim()) continue
+    const role = msg.role === "user" ? "user" : "model"
+    if (contents.length === 0 && role === "model") continue
+    const text = msg.content.slice(0, MAX_MESSAGE_LENGTH)
+    const last = contents[contents.length - 1]
+    if (last && last.role === role) {
+      last.parts[0].text += "\n\n" + text
+    } else {
+      contents.push({ role, parts: [{ text }] })
+    }
+  }
+  return contents
+}
 
 export async function POST(req) {
   try {
+    const authUser = await getAuthUser()
+    if (!authUser) {
+      return NextResponse.json(
+        { id: Date.now().toString(), role: "assistant", content: "Please log in to use the AI assistant." },
+        { status: 401 }
+      )
+    }
+
     const body = await req.json()
-    const messages = body.messages || []
+    const messages = Array.isArray(body.messages) ? body.messages : []
 
     if (!process.env.GEMINI_API_KEY) {
       console.error("❌ GEMINI_API_KEY not configured")
@@ -17,9 +48,7 @@ export async function POST(req) {
       )
     }
 
-    const systemMessage = {
-      role: "user",
-      content: `
+    const systemPrompt = `
 You are a helpful and expert AI legal assistant specializing only in property-related issues in Pakistan.
 
 Only answer questions related to:
@@ -34,21 +63,27 @@ Only answer questions related to:
 You must include possible punishments, legal outcomes, and applicable sections when appropriate.
 You can reply to greetings
 Do NOT answer unrelated questions (e.g., about other countries or non-property issues). Instead, reply: "I only assist with property-related legal issues in Pakistan."
-      `,
+      `
+
+    const contents = toGeminiContents(messages)
+    if (contents.length === 0) {
+      return NextResponse.json(
+        { id: Date.now().toString(), role: "assistant", content: "Please enter a question." },
+        { status: 400 }
+      )
     }
 
-    const userMessagesOnly = messages.filter((m) => m.role === "user")
-
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": process.env.GEMINI_API_KEY,
+        },
         body: JSON.stringify({
-          contents: [systemMessage, ...userMessagesOnly].map((msg) => ({
-            role: msg.role === "user" ? "user" : "model",
-            parts: [{ text: msg.content }],
-          })),
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents,
         }),
       }
     )

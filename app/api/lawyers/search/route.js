@@ -3,17 +3,22 @@ import { connectToDB } from "@/lib/db"
 import { User } from "@/models/User"
 import { Review } from "@/models/Review"
 
+// Always query the DB at request time (never prerender at build)
+export const dynamic = "force-dynamic"
+
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
 export async function GET(req) {
   try {
     await connectToDB()
     const { searchParams } = new URL(req.url)
     
-    const query = searchParams.get("q") || ""
-    const specialization = searchParams.get("specialization") || ""
-    const location = searchParams.get("location") || ""
+    const query = escapeRegex(searchParams.get("q") || "")
+    const specialization = escapeRegex(searchParams.get("specialization") || "")
+    const location = escapeRegex(searchParams.get("location") || "")
     const minRating = searchParams.get("minRating") || ""
     const sortBy = searchParams.get("sortBy") || "rating"
-    const limit = parseInt(searchParams.get("limit")) || 20
+    const limit = Math.min(parseInt(searchParams.get("limit")) || 20, 100)
 
     // Build search query
     const searchQuery = { userType: "lawyer", verified: true }

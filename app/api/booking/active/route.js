@@ -3,6 +3,8 @@ import { connectToDB } from "@/lib/db"
 import { Booking } from "@/models/Booking"
 import { getCurrentUser } from "@/lib/getCurrentUser"
 
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   try {
     await connectToDB()

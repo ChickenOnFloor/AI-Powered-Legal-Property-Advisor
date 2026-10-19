@@ -4,19 +4,19 @@ AI-Powered Legal Consultation Platform for Property Law
 
 ---
 
-A production-ready platform combining advanced AI (Google Gemini) and real lawyers for property-related legal matters. Features real-time chat, video calls, document management, and robust admin tools.
+A platform combining AI (Google Gemini) and real lawyers for property-related legal matters in Pakistan. Features lawyer booking, client–lawyer chat, case and document management, and admin tools.
 
 ## 🚀 Key Features
 
 - **AI Legal Assistant**: Instant property law guidance via Gemini AI
-- **Real-Time Chat & Video**: WebSocket-powered messaging, typing indicators, online status, and video calls
+- **Client–Lawyer Chat**: Messaging between clients and booked lawyers (REST polling). A Socket.io server for real-time chat and WebRTC call signalling is included but not yet wired into the UI (see below)
 - **Booking System**: 48-hour lawyer access, real-time availability, secure sessions
 - **Case Management**: Create, track, and update legal cases with document uploads
-- **Document Storage**: Secure uploads, sharing, presigned URLs, and validation
-- **Notifications**: Real-time and email alerts for bookings, messages, reviews, and cases
+- **Document Storage**: Upload metadata and sharing. ⚠️ `lib/storage.js` is a stub that returns fake URLs; no file is actually stored yet
+- **Notifications**: In-app notifications. ⚠️ `lib/email.js` is a stub that only logs; no email is actually sent yet
 - **Admin Dashboard**: Analytics, lawyer verification, user management, revenue tracking
 - **PWA & Mobile**: Installable, offline support, push notifications, mobile-optimized UI
-- **Security**: JWT auth, bcrypt password hashing, RBAC, CORS, rate limiting, input validation
+- **Security**: JWT in an httpOnly cookie, bcrypt password hashing, role checks (client/lawyer/admin). No rate limiting yet
 
 ## 🛠️ Technology Stack
 
@@ -74,24 +74,36 @@ A production-ready platform combining advanced AI (Google Gemini) and real lawye
 
 **Environment Variables** (see `.env.example`):
 - `MONGODB_URI`, `JWT_SECRET`, `GEMINI_API_KEY`, `NEXT_PUBLIC_SITE_URL`
-- Email: `FROM_EMAIL`, `EMAIL_USER`, `EMAIL_PASS`, etc.
-- Storage: `STORAGE_BASE_URL`, `STORAGE_BUCKET`, AWS keys
-- PWA: `PWA_NAME`, `PWA_THEME_COLOR`, etc.
+- Email (stub): `FROM_EMAIL`, `FROM_NAME`
+- Storage (stub): `STORAGE_BASE_URL`, `STORAGE_BUCKET`
+
+> **Use a long random hex `JWT_SECRET`** (e.g. `openssl rand -hex 64`). Next.js expands `$NAME` inside `.env` values, so a secret containing `$` is silently truncated. Never commit `.env` files.
+
+### Real-time server (optional)
+
+`npm run dev` / `npm start` run plain Next.js. To also run the Socket.io server (`lib/socket.mjs`, authenticated by the same `token` cookie), use:
+
+```bash
+npm run dev:socket     # development
+npm run build && npm run start:socket   # production
+```
+
+This needs a host that runs a long-lived Node process (not Vercel serverless).
 
 ## 🏗️ Project Structure
 
 ```
 app/         # Next.js App Router (API, pages, dashboards)
 components/  # Reusable UI & chat/video components
-lib/         # Utilities: db, email, storage, socket
+lib/         # Utilities: db, auth, email (stub), storage (stub), socket
 models/      # Mongoose models (User, Booking, Case, etc.)
 public/      # Static assets, manifest, service worker
-styles/      # Global styles
+server.mjs   # Optional custom server that adds Socket.io
 ```
 
 ## 📡 API Overview
 
-All API endpoints are under `/api/` and follow RESTful conventions. Authentication is required for most endpoints (JWT via cookies or headers).
+All API endpoints are under `/api/` and follow RESTful conventions. Authentication is required for most endpoints (JWT in the httpOnly `token` cookie). Registration only accepts `client` or `lawyer`; admin accounts must be created directly in the database.
 
 ### Auth & User
 - `POST /api/login` — User login
@@ -104,26 +116,26 @@ All API endpoints are under `/api/` and follow RESTful conventions. Authenticati
 ### Booking & Appointments
 - `POST /api/booking` — Book a lawyer (48-hour access)
 - `GET /api/booking/active` — Get active bookings
-- `POST /api/booking/check` — Check booking status
+- `GET /api/booking/check` — Check booking status
 - `POST /api/booking/access-check` — Check access for booking
 - `POST /api/appointments` — Create appointment
 - `GET /api/appointments/byLawyer` — Appointments for a lawyer
 - `GET /api/bookings/byLawyer` — Bookings for a lawyer
 
 ### Lawyers
-- `GET /api/lawyers` — List/search lawyers
+- `GET /api/lawyers` — List verified lawyers
 - `GET /api/lawyers/search` — Search lawyers
 - `GET /api/lawyers/[lawyerId]` — Get lawyer by ID
-- `GET /api/lawyers/clients` — Get lawyer's clients
-- `GET /api/lawyers/by-ids` — Get multiple lawyers by IDs
+- `GET /api/lawyers/clients` — Get lawyer's cases (that lawyer or admin only)
+- `POST /api/lawyers/by-ids` — Get multiple lawyers by IDs
 
 ### Cases
 - `GET /api/cases` — List user cases
 - `POST /api/cases` — Create a case
-- `GET /api/caseoflawyer` — Cases for a lawyer
+- `GET /api/caseoflawyer` — Cases for a lawyer (that lawyer or admin only)
 
 ### Chat & Messaging
-- `POST /api/chat` — AI legal assistant (Gemini)
+- `POST /api/chat` — AI legal assistant (Gemini, logged-in users only)
 - `GET/POST /api/lawyerchat` — Lawyer-client chat
 - `POST /api/lawyerchat/send` — Send message
 - `GET /api/lawyerchat/messages` — Get chat messages
@@ -137,10 +149,7 @@ All API endpoints are under `/api/` and follow RESTful conventions. Authenticati
 - `GET/POST /api/notifications` — List/send notifications
 
 ### Video Calls
-- `POST /api/video-calls` — Initiate video call
-- `POST /api/video-calls/offer` — Send call offer
-- `POST /api/video-calls/answer` — Answer call
-- `POST /api/video-calls/ice-candidate` — ICE candidate exchange
+- `GET/POST /api/video-calls` — Call records (WebRTC signalling goes through the optional Socket.io server)
 
 ### Analytics & Admin
 - `GET /api/analytics` — Platform analytics (role-based)
@@ -159,9 +168,9 @@ All API endpoints are under `/api/` and follow RESTful conventions. Authenticati
 
 ## ⚡ Real-Time & Utilities
 
-- **WebSocket**: Real-time chat, typing, online status, video call signaling, notifications
-- **Email**: Welcome, booking, message, case, review, verification, password reset
-- **Storage**: File/image/document upload, validation, presigned URLs, sharing
+- **WebSocket** (optional, `npm run dev:socket`): chat, typing, online status, video call signalling, notifications. The client components (`RealTimeChat`, `VideoCall`) are not yet used by any page
+- **Email** (stub): templates for welcome, booking, message, case, review, verification, password reset
+- **Storage** (stub): upload, validation and sharing API without a real storage backend
 
 ## 📱 PWA & Mobile
 - Installable on iOS/Android
@@ -169,10 +178,9 @@ All API endpoints are under `/api/` and follow RESTful conventions. Authenticati
 - Touch-optimized, responsive, mobile navigation
 
 ## 🔒 Security
-- JWT auth, bcrypt password hashing
-- RBAC (client/lawyer/admin)
-- Input validation, CORS, rate limiting
-- Secure file uploads
+- JWT auth (httpOnly, `sameSite=strict` cookie), bcrypt password hashing (min. 8 characters)
+- Role checks (client/lawyer/admin); self-registration as admin is blocked
+- Not yet implemented: rate limiting, real file storage, CSRF tokens
 
 ## 🚀 Deployment
 
@@ -185,16 +193,10 @@ vercel
 vercel --prod
 ```
 
-**Docker**
-```bash
-docker build -t legal-advisor .
-docker run -p 3000:3000 legal-advisor
-```
 
 ## 🤝 Contributing
 - Fork, branch, commit, PR
 - Add tests if possible
-- See [LICENSE](LICENSE)
 
 ## 🗺️ Roadmap
 - [ ] Video calling (WebRTC)

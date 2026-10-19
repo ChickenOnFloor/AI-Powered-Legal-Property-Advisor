@@ -64,18 +64,9 @@ export default function VideoCall({
 
   // Initialize socket connection
   useEffect(() => {
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('token='))
-      ?.split('=')[1]
-
-    if (!token) {
-      addToast("Authentication required", "error")
-      return
-    }
-
-    const socket = io(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000", {
-      auth: { token }
+    // The auth cookie is httpOnly; the browser sends it with the handshake
+    const socket = io(process.env.NEXT_PUBLIC_SITE_URL || window.location.origin, {
+      withCredentials: true
     })
 
     socketRef.current = socket

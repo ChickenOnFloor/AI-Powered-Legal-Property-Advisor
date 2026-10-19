@@ -157,7 +157,7 @@ export default function MobileApp() {
               </div>
               
               <div className="mt-3 text-xs text-gray-500 text-center">
-                Tap "Install App" and then "Add to Home Screen"
+                Tap &ldquo;Install App&rdquo; and then &ldquo;Add to Home Screen&rdquo;
               </div>
             </CardContent>
           </Card>

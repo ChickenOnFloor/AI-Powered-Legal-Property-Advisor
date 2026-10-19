@@ -1,7 +1,8 @@
 import { connectToDB } from "@/lib/db"
 import { Booking } from "@/models/Booking"
-import jwt from "jsonwebtoken"
-import { cookies } from "next/headers"
+import { getAuthUser } from "@/lib/getAuthUser"
+
+export const dynamic = "force-dynamic"
 
 export async function GET(req) {
   try {
@@ -11,14 +12,11 @@ export async function GET(req) {
       return Response.json({ message: "Missing lawyerId" }, { status: 400 })
     }
 
-    const cookieStore = await cookies()
-    const token = cookieStore.get("token")?.value
-    if (!token) {
-      return Response.json({ booked: false }) // Not logged in
+    const authUser = await getAuthUser()
+    if (!authUser) {
+      return Response.json({ booked: false }) // Not logged in or expired token
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    const userId = decoded.id
+    const userId = authUser.id
 
     await connectToDB()
 

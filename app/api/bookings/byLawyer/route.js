@@ -4,6 +4,8 @@ import { User } from "@/models/User";
 import { getAuthUser } from "@/lib/getAuthUser";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic"
+
 export async function GET(req) {
   try {
     await connectToDB();

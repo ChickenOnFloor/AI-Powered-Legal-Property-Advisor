@@ -17,14 +17,10 @@ export async function POST(req) {
     await connectToDB()
     const user = await User.findOne({ email })
 
-    if (!user) {
-      return Response.json({ message: "User not found" }, { status: 404 })
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password)
-
+    // Same response for unknown email and wrong password, so emails can't be enumerated
+    const isMatch = user ? await bcrypt.compare(password, user.password) : false
     if (!isMatch) {
-      return Response.json({ message: "Invalid password" }, { status: 401 })
+      return Response.json({ message: "Invalid email or password" }, { status: 401 })
     }
 
     const token = jwt.sign(
@@ -37,6 +33,7 @@ export async function POST(req) {
     cookieStore.set("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
     maxAge: 7 * 24 * 60 * 60,
     path: "/",
     })

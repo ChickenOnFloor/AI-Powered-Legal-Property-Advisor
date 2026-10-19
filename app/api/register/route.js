@@ -16,6 +16,15 @@ export async function POST(req) {
       return NextResponse.json({ message: "Missing required fields" }, { status: 400 })
     }
 
+    // Admin accounts must never be self-registered
+    if (!["client", "lawyer"].includes(userType)) {
+      return NextResponse.json({ message: "Invalid user type" }, { status: 400 })
+    }
+
+    if (typeof password !== "string" || password.length < 8) {
+      return NextResponse.json({ message: "Password must be at least 8 characters" }, { status: 400 })
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email })
     if (existingUser) {
@@ -38,7 +47,7 @@ export async function POST(req) {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, email: user.email, userType: user.userType },
+      { id: user._id, firstName: user.firstName, email: user.email, userType: user.userType },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     )
@@ -69,7 +78,8 @@ export async function POST(req) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 // 7 days (seconds)
     })
 
     return response

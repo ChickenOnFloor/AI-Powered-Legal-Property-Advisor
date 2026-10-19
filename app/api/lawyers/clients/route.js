@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/db";
 import Case from "@/models/Case";
+import { getAuthUser } from "@/lib/getAuthUser";
 import { User } from "@/models/User";  // Uppercase 'User'
+
+export const dynamic = "force-dynamic"
 
 export async function GET(req) {
   try {
@@ -12,11 +15,21 @@ export async function GET(req) {
       return NextResponse.json({ message: "Missing lawyerEmail" }, { status: 400 });
     }
 
+    // Only the lawyer themselves (or an admin) may see their case list
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     await connectToDB();
 
     const lawyer = await User.findOne({ email: lawyerEmail });
     if (!lawyer) {
       return NextResponse.json({ message: "Lawyer not found" }, { status: 404 });
+    }
+
+    if (authUser.userType !== "admin" && authUser.id !== lawyer._id.toString()) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
     const cases = await Case.find({ lawyer: lawyer.email })

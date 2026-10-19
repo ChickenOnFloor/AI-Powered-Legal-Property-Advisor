@@ -115,7 +115,7 @@ export default function AIChatPage() {
                     </div>
                     <div className="rounded-lg p-4 bg-gray-100 text-sm">
                       <p>
-                        Hello! I'm your AI Property Legal Assistant powered by Groq.
+                        Hello! I&apos;m your AI Property Legal Assistant powered by Google Gemini.
                         <br /><br />
                         <strong>I can help with:</strong>
                       </p>
